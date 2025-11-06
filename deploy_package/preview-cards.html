@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resource Cards Preview - SCOP Resource Hub</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        body {
+            padding: 2rem;
+            background: var(--bg);
+        }
+        .preview-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .preview-header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        .preview-header h1 {
+            color: var(--fg);
+            margin-bottom: 0.5rem;
+        }
+        .preview-header p {
+            color: var(--muted);
+            font-size: 1.1rem;
+        }
+        .section-divider {
+            margin: 3rem 0;
+            text-align: center;
+        }
+        .section-divider h2 {
+            color: var(--accent);
+            border-bottom: 2px solid var(--accent-light);
+            display: inline-block;
+            padding-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="preview-container">
+        <div class="preview-header">
+            <h1>Enhanced Resource Cards</h1>
+            <p>Modern card-based layout for journals, publications, and career resources</p>
+        </div>
+
+        <div class="section-divider">
+            <h2>Sample Resource Cards</h2>
+        </div>
+
+        <div class="resource-cards-grid">
+            <!-- PDF Resource Card -->
+            <div class="resource-card">
+                <div class="resource-card-header no-thumbnail" data-type="pdf" style="background: linear-gradient(135deg, #ef4444, #dc2626)">
+                    <span class="material-icons resource-card-icon">picture_as_pdf</span>
+                    <div class="resource-card-type">PDF</div>
+                </div>
+                <div class="resource-card-body">
+                    <h3 class="resource-card-title">Notes for DBMS</h3>
+                    <p class="resource-card-description">Comprehensive database management system study notes covering all key concepts for Semester 3</p>
+                    <div class="resource-card-footer">
+                        <a href="#" class="resource-card-download">
+                            <span class="material-icons" style="font-size: 1rem;">download</span>
+                            Download
+                        </a>
+                        <span class="resource-card-size">2.3 MB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- External Link Card -->
+            <div class="resource-card">
+                <div class="resource-card-header no-thumbnail" data-type="external" style="background: linear-gradient(135deg, #f59e0b, #d97706)">
+                    <span class="material-icons resource-card-icon">link</span>
+                    <div class="resource-card-type">Link</div>
+                </div>
+                <div class="resource-card-body">
+                    <h3 class="resource-card-title">Pharmacology Online Course</h3>
+                    <p class="resource-card-description">Interactive online course covering advanced pharmacological concepts and drug interactions</p>
+                    <div class="resource-card-footer">
+                        <a href="#" class="resource-card-download">
+                            <span class="material-icons" style="font-size: 1rem;">open_in_new</span>
+                            Open Link
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Journal Card with Custom Color -->
+            <div class="resource-card">
+                <div class="resource-card-header no-thumbnail" style="background: linear-gradient(135deg, #10b981, #059669)">
+                    <span class="material-icons resource-card-icon">article</span>
+                    <div class="resource-card-type">Journal</div>
+                </div>
+                <div class="resource-card-body">
+                    <h3 class="resource-card-title">Clinical Pharmacy Research</h3>
+                    <p class="resource-card-description">Latest research findings in clinical pharmacy practice and patient care methodologies</p>
+                    <div class="resource-card-footer">
+                        <a href="#" class="resource-card-download">
+                            <span class="material-icons" style="font-size: 1rem;">download</span>
+                            Download
+                        </a>
+                        <span class="resource-card-size">1.8 MB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Publication Card -->
+            <div class="resource-card">
+                <div class="resource-card-header no-thumbnail" data-type="doc" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed)">
+                    <span class="material-icons resource-card-icon">description</span>
+                    <div class="resource-card-type">Publication</div>
+                </div>
+                <div class="resource-card-body">
+                    <h3 class="resource-card-title">Drug Development Guidelines</h3>
+                    <p class="resource-card-description">Comprehensive guidelines for pharmaceutical drug development processes and regulatory requirements</p>
+                    <div class="resource-card-footer">
+                        <a href="#" class="resource-card-download">
+                            <span class="material-icons" style="font-size: 1rem;">download</span>
+                            Download
+                        </a>
+                        <span class="resource-card-size">956 KB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Video Resource Card -->
+            <div class="resource-card">
+                <div class="resource-card-header no-thumbnail" data-type="video" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed)">
+                    <span class="material-icons resource-card-icon">video_library</span>
+                    <div class="resource-card-type">Video</div>
+                </div>
+                <div class="resource-card-body">
+                    <h3 class="resource-card-title">Laboratory Techniques Demo</h3>
+                    <p class="resource-card-description">Practical demonstration of essential laboratory techniques for pharmaceutical analysis</p>
+                    <div class="resource-card-footer">
+                        <a href="#" class="resource-card-download">
+                            <span class="material-icons" style="font-size: 1rem;">play_arrow</span>
+                            Watch Video
+                        </a>
+                        <span class="resource-card-size">15.2 MB</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card with Thumbnail (simulated) -->
+            <div class="resource-card">
+                <div class="resource-card-header has-thumbnail">
+                    <img src="https://images.unsplash.com/photo-1559757148-5c350d0d3c56?w=400&h=240&fit=crop&auto=format" 
+                         alt="Career Guide" class="resource-card-thumbnail">
+                    <div class="resource-card-type">Career Guide</div>
+                </div>
+                <div class="resource-card-body">
+                    <h3 class="resource-card-title">Pharmacy Career Opportunities</h3>
+                    <p class="resource-card-description">Comprehensive guide to career paths and opportunities in the pharmaceutical industry</p>
+                    <div class="resource-card-footer">
+                        <a href="#" class="resource-card-download">
+                            <span class="material-icons" style="font-size: 1rem;">download</span>
+                            Download
+                        </a>
+                        <span class="resource-card-size">3.1 MB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-divider">
+            <h2>Features</h2>
+        </div>
+
+        <div style="background: var(--card); padding: 2rem; border-radius: var(--radius-lg); margin-bottom: 2rem;">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">Enhanced Card Layout Features:</h3>
+            <ul style="color: var(--muted); line-height: 1.6;">
+                <li><strong>Visual Thumbnails:</strong> Upload custom images for each resource to make them more appealing</li>
+                <li><strong>Color Customization:</strong> Choose custom colors for each resource card to categorize or highlight</li>
+                <li><strong>File Type Detection:</strong> Automatic icons and colors based on file types (PDF, DOC, images, videos)</li>
+                <li><strong>Responsive Design:</strong> Cards adapt beautifully to different screen sizes</li>
+                <li><strong>File Size Display:</strong> Shows file sizes for better user understanding</li>
+                <li><strong>External Link Support:</strong> Handle both uploaded files and external URLs</li>
+                <li><strong>Hover Effects:</strong> Smooth animations for better user experience</li>
+                <li><strong>Professional Layout:</strong> Modern card-based design similar to popular platforms</li>
+            </ul>
+        </div>
+
+        <div style="text-align: center; padding: 2rem;">
+            <a href="admin-dashboard.html" class="btn primary">Go to Admin Dashboard</a>
+            <a href="index.html" class="btn ghost" style="margin-left: 1rem;">Back to Student Portal</a>
+        </div>
+    </div>
+</body>
+</html>

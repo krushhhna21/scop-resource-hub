@@ -7,9 +7,11 @@
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
   <meta name="description" content="Shivlingeshwar College of Pharmacy (SCOP) Almala — Pharm D Resource Hub">
-  <!-- Use a relative API path so the frontend calls the backend on the same host.
-    When deploying to a different host, set this to the full API URL (https://yourdomain/.../backend/api/index.php) -->
-  <meta name="api-base" content="/backend/api/index.php">
+  <!-- API base
+    - Local (XAMPP): this file is served from /scop-resource-hub/public, so use a relative path up to /backend
+    - Hosting (InfinityFree): change to "/api/index.php" (proxy) or the full URL like "https://yourdomain/api/index.php"
+  -->
+  <meta name="api-base" content="../backend/api/index.php">
 </head>
 <body>
   <div class="menu-tab" role="navigation">
@@ -70,10 +72,6 @@
             <div class="muted">Shivlingeshwar College of Pharmacy</div>
           </div>
         </div>
-        <div class="actions">
-          <a class="btn ghost" href="admin-login.html">Admin</a>
-          <button class="btn" id="printBtn" title="Print current view">Print</button>
-        </div>
       </header>
       
       <div class="hero-content">
@@ -85,24 +83,114 @@
 
   <div class="container">
     <section class="features-section">
-      <div class="features-grid">
+      <div class="features-grid slideshow">
         <div class="feature-card">
-          <h3>📚 Comprehensive Resources</h3>
-          <p>Access a wide range of study materials, lecture notes, and reference documents.</p>
+          <div class="feature-icon">
+            <span class="material-icons">library_books</span>
+          </div>
+          <h3>Comprehensive Library</h3>
+          <p>Access thousands of pharmacy books, journals, and research papers. Our extensive collection covers all Pharm D subjects from basic sciences to clinical pharmacy practice.</p>
+          <div class="feature-stats">
+            <div class="stat-item">
+              <span class="stat-number">500+</span>
+              <span class="stat-label">Books</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">200+</span>
+              <span class="stat-label">Journals</span>
+            </div>
+          </div>
         </div>
         <div class="feature-card">
-          <h3>🎓 Academic Excellence</h3>
-          <p>Supporting pharmacy education with quality resources and materials.</p>
+          <div class="feature-icon">
+            <span class="material-icons">school</span>
+          </div>
+          <h3>Academic Excellence</h3>
+          <p>Curated study materials, previous year questions, and important notes prepared by experienced faculty and top-performing students to help you excel in your pharmacy career.</p>
+          <div class="feature-stats">
+            <div class="stat-item">
+              <span class="stat-number">6</span>
+              <span class="stat-label">Years</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">100+</span>
+              <span class="stat-label">Subjects</span>
+            </div>
+          </div>
         </div>
         <div class="feature-card">
-          <h3>📱 Easy Access</h3>
-          <p>Access your study materials anytime, anywhere on any device.</p>
+          <div class="feature-icon">
+            <span class="material-icons">cloud_download</span>
+          </div>
+          <h3>Instant Access</h3>
+          <p>Download study materials instantly from anywhere, anytime. Mobile-friendly interface ensures you can study on the go. All resources organized by year and subject for easy navigation.</p>
+          <div class="feature-stats">
+            <div class="stat-item">
+              <span class="stat-number">24/7</span>
+              <span class="stat-label">Available</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">Fast</span>
+              <span class="stat-label">Downloads</span>
+            </div>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <span class="material-icons">groups</span>
+          </div>
+          <h3>Student Community</h3>
+          <p>Join a collaborative learning environment where students share knowledge, study tips, and career guidance. Connect with peers and alumni for mentorship opportunities.</p>
+          <div class="feature-stats">
+            <div class="stat-item">
+              <span class="stat-number">1000+</span>
+              <span class="stat-label">Students</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">Active</span>
+              <span class="stat-label">Community</span>
+            </div>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <span class="material-icons">work</span>
+          </div>
+          <h3>Career Resources</h3>
+          <p>Explore career opportunities, internship programs, and professional development resources. Get guidance on licensing exams, job placements, and pharmacy practice areas.</p>
+          <div class="feature-stats">
+            <div class="stat-item">
+              <span class="stat-number">50+</span>
+              <span class="stat-label">Opportunities</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">Career</span>
+              <span class="stat-label">Guidance</span>
+            </div>
+          </div>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">
+            <span class="material-icons">update</span>
+          </div>
+          <h3>Regular Updates</h3>
+          <p>Stay current with the latest pharmaceutical research, drug information, and clinical guidelines. New study materials and resources added regularly to keep content fresh and relevant.</p>
+          <div class="feature-stats">
+            <div class="stat-item">
+              <span class="stat-number">Weekly</span>
+              <span class="stat-label">Updates</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number">Fresh</span>
+              <span class="stat-label">Content</span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
 
     <div class="library-sections">
-      <main class="card library-section active" id="home-library">
+      <main class="library-section active" id="home-library">
         <div class="section-header">
           <h2>Pharm D Navigator</h2>
           <p class="muted">Recent notes and important resources</p>
@@ -113,75 +201,44 @@
       </main>
 
       <main class="card library-section" id="books-library" style="display: none;">
-        <div class="section-header">
-          <h2>Books Library</h2>
-          <p class="muted">Access recommended textbooks and reference materials</p>
-        </div>
         <div id="books-content" class="library-content">
-          <div id="booksGrid" class="grid"></div>
+          <!-- Content will be loaded dynamically -->
         </div>
       </main>
 
       <main class="card library-section" id="journals-library" style="display: none;">
-        <div class="section-header">
-          <h2>Pharmacy Journals</h2>
-          <p class="muted">Access to latest pharmaceutical research and journals</p>
-        </div>
         <div id="journals-content" class="library-content">
-          <div id="journalsGrid" class="grid"></div>
+          <!-- Content will be loaded dynamically -->
         </div>
       </main>
 
       <main class="card library-section" id="publications-library" style="display: none;">
-        <div class="section-header">
-          <h2>Publications</h2>
-          <p class="muted">Research papers and academic publications</p>
-        </div>
         <div id="publications-content" class="library-content">
-          <div id="publicationsGrid" class="grid"></div>
+          <!-- Content will be loaded dynamically -->
         </div>
       </main>
 
       <main class="card library-section" id="career-library" style="display: none;">
-        <div class="section-header">
-          <h2>Career Opportunities</h2>
-          <p class="muted">Job openings and career development resources</p>
-        </div>
         <div id="career-content" class="library-content">
-          <div id="careerGrid" class="grid"></div>
+          <!-- Content will be loaded dynamically -->
         </div>
       </main>
 
       <main class="card library-section" id="questions-library" style="display: none;">
-        <div class="section-header">
-          <h2>Previous Year Questions</h2>
-          <p class="muted">Access previous year exam questions and practice materials</p>
-        </div>
         <div id="questions-content" class="library-content">
-          <div class="section-header">
-            <h2>Select Year</h2>
-            <p class="muted">Choose your Pharm D year to view questions</p>
-          </div>
-          <div id="questionsYearGrid" class="grid"></div>
+          <!-- Content will be loaded dynamically -->
         </div>
       </main>
 
       <main class="card library-section" id="important-questions-library" style="display: none;">
-        <div class="section-header">
-          <h2>Important Questions</h2>
-          <p class="muted">Curated important questions for exam preparation</p>
-        </div>
         <div id="important-questions-content" class="library-content">
+          <!-- Content will be loaded dynamically -->
         </div>
       </main>
 
       <main class="card library-section" id="resources-library" style="display: none;">
-        <div class="section-header">
-          <h2>General Resources</h2>
-          <p class="muted">Additional study materials and learning resources</p>
-        </div>
         <div id="resources-content" class="library-content">
-          <div id="resourcesGrid" class="grid"></div>
+          <!-- Content will be loaded dynamically -->
         </div>
       </main>
     </div>
@@ -190,6 +247,11 @@
       © <span id="year"></span> SCOP Almala • Built for students and faculty VertexHub
     </footer>
   </div>
+
+  <!-- Floating Back to Top Button -->
+  <button id="backToTopFab" class="fab" aria-label="Back to top" title="Back to top" style="opacity:0;pointer-events:none;">
+    <span class="material-icons">arrow_upward</span>
+  </button>
 
   <script src="assets/js/app.js"></script>
 </body>

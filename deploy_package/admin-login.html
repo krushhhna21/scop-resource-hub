@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Login — SCOP Resource Hub</title>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <style>
+    .center { max-width: 420px; margin: 10vh auto; }
+  </style>
+</head>
+<body>
+  <div class="container center">
+    <div class="card">
+      <h2>Admin Login</h2>
+      <p class="muted">Restricted to authorized staff.</p>
+      <form id="loginForm">
+        <label>Username</label>
+        <input name="username" type="text" required style="width:100%;padding:.6rem;border:1px solid #e2e8f0;border-radius:8px;">
+        <label style="margin-top:.75rem">Password</label>
+        <input name="password" type="password" required style="width:100%;padding:.6rem;border:1px solid #e2e8f0;border-radius:8px;">
+        <div class="actions" style="margin-top:1rem;">
+          <button class="btn" type="submit">Login</button>
+          <a class="btn ghost" href="index.html">Back</a>
+        </div>
+      </form>
+    <div id="msg" class="muted" style="margin-top:.5rem;"></div>        
+    </div>
+  </div>
+  <script>
+    const API = (function() {
+      const metaApi = document.querySelector('meta[name="api-base"]')?.content;
+      if (metaApi) return metaApi;
+      const path = window.location.pathname || '/';
+      // Look for /public/ or /frontend/ anywhere in path (supports subfolders)
+      const m = path.match(/\/(public|frontend)\//);
+      if (m) {
+        const idx = path.indexOf(`/${m[1]}/`);
+        const prefix = path.slice(0, idx + m[0].length); // includes trailing slash
+        return prefix + 'api/index.php';
+      }
+      // Otherwise, use the current directory as base
+      const lastSlash = path.lastIndexOf('/');
+      const dir = lastSlash >= 0 ? path.slice(0, lastSlash + 1) : '/';
+      return dir + 'api/index.php';
+    })();
+    const form = document.getElementById('loginForm');
+    const msg = document.getElementById('msg');
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      msg.textContent = 'Signing in...';
+      const payload = {
+        username: form.username.value.trim(),
+        password: form.password.value
+      };
+      const url = API; // send action in body for maximum compatibility
+      try {
+        // Try JSON POST first
+        let res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action: 'admin_login', ...payload })
+        });
+
+        // If server returns non-2xx, try to parse JSON for details
+        if (!res.ok) {
+          let errJson = null;
+          try { errJson = await res.json(); } catch (_) {}
+          // Fallback: try form-encoded if JSON body might be ignored by host
+          const formBody = new URLSearchParams({ action: 'admin_login', ...payload }).toString();
+          res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            credentials: 'include',
+            body: formBody
+          });
+          if (!res.ok) {
+            let secondErr = null;
+            try { secondErr = await res.json(); } catch (_) {}
+            throw new Error(`Login failed (${res.status}). ${secondErr?.error || errJson?.error || 'Server error.'}`);
+          }
+        }
+
+        const json = await res.json();
+        if (json && json.success) {
+          location.href = 'admin-dashboard.html';
+        } else {
+          msg.textContent = (json && json.error) ? json.error : 'Login failed.';
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        msg.textContent = `Login error: ${error?.message || 'Network error'} — URL: ${url}`;
+      }
+    });
+  </script>
+</body>
+</html>

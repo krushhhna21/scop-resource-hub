@@ -1,33 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-  // Scroll reveal helper for subtle animations
-  function addScrollReveal(root = document) {
-    try {
-      const items = Array.from(root.querySelectorAll('[data-scroll], .feature-card, .year-btn, .subject-btn, .resource-card, .lib-nav-btn, .card'));
-      if (items.length === 0) return;
-
-      // Assign data-scroll to elements that don't have it
-      items.forEach((el, idx) => {
-        if (!el.hasAttribute('data-scroll')) {
-          const isGridItem = el.classList.contains('feature-card') || el.classList.contains('resource-card') || el.classList.contains('year-btn') || el.classList.contains('subject-btn');
-          el.setAttribute('data-scroll', isGridItem ? (idx % 2 === 0 ? 'left' : 'right') : 'up');
-        }
-      });
-
-      const io = new IntersectionObserver((entries, obs) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('scroll-visible');
-            obs.unobserve(entry.target);
-          }
-        });
-      }, { threshold: 0.1 });
-
-      items.forEach(el => io.observe(el));
-    } catch (e) {
-      console.warn('Scroll reveal unavailable:', e);
-    }
-  }
-
   // Decide API base dynamically so it works whether the site is served from /, /public, or /frontend
   const metaApi = document.querySelector('meta[name="api-base"]')?.content;
   const API_BASE = metaApi || (() => {
@@ -46,32 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
   console.log('API_BASE determined as:', API_BASE);
   // Cache DOM elements
   const yearSpan = document.querySelector('#year');
+  const printBtn = document.querySelector('#printBtn');
   const menuButton = document.getElementById('menuButton');
   const menuContent = document.getElementById('menuContent');
   const librarySections = document.querySelectorAll('.library-section');
 
-  // Micro-interactions: gentle float for logo
-  const brandLogoImg = document.querySelector('.brand-logo img');
-  if (brandLogoImg) {
-    brandLogoImg.classList.add('animate-gentle-float');
-  }
-
-  // Floating Action Button (Back to Top)
-  const fab = document.getElementById('backToTopFab');
-  if (fab) {
-    const onScroll = () => {
-      const show = window.scrollY > 300;
-      fab.style.opacity = show ? '1' : '0';
-      fab.style.pointerEvents = show ? 'auto' : 'none';
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    onScroll();
-    fab.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-  }
-
   // Set current year in footer
   if (yearSpan) {
     yearSpan.textContent = new Date().getFullYear();
+  }
+
+  // Enable printing
+  if (printBtn) {
+    printBtn.addEventListener('click', () => window.print());
   }
 
   // Initialize menu if elements exist
@@ -120,133 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Tilt interaction for feature cards (desktop only)
-  (function initFeatureTilt() {
-    // Exclude cards inside the slideshow to avoid transform conflicts
-    const cards = Array.from(document.querySelectorAll('.feature-card'))
-      .filter(card => !card.closest('.features-grid.slideshow'));
-    if (cards.length === 0) return;
-    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return; // respect reduced motion
-
-    const onMove = (e) => {
-      const el = e.currentTarget;
-      const rect = el.getBoundingClientRect();
-      const cx = rect.left + rect.width / 2;
-      const cy = rect.top + rect.height / 2;
-      const dx = (e.clientX - cx) / (rect.width / 2); // -1..1
-      const dy = (e.clientY - cy) / (rect.height / 2); // -1..1
-      const rotateX = (+dy * 4).toFixed(2);
-      const rotateY = (-dx * 4).toFixed(2);
-      el.style.transform = `translateY(-6px) translateZ(12px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-    };
-    const onLeave = (e) => {
-      e.currentTarget.style.transform = '';
-    };
-
-    cards.forEach(card => {
-      card.addEventListener('mousemove', onMove);
-      card.addEventListener('mouseleave', onLeave);
-      card.addEventListener('touchstart', () => {}, { passive: true });
-    });
-  })();
-
-  // Feature slideshow (3 cards) with center focus and side previews
-  (function initFeatureSlider() {
-    const grid = document.querySelector('.features-grid.slideshow');
-    if (!grid) return;
-    const cards = Array.from(grid.querySelectorAll('.feature-card'));
-    if (cards.length < 2) return; // only run for 2+ cards
-
-    // Respect reduced motion preferences
-    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReduced) return;
-
-    // Height helper - define BEFORE it's used
-    const updateGridHeight = () => {
-      const heights = cards.map(c => c.offsetHeight || 0);
-      const maxH = Math.max(...heights, 0);
-      if (maxH > 0) grid.style.height = maxH + 'px';
-    };
-
-    let idx = 0;
-    const applyPositions = () => {
-      cards.forEach(c => c.classList.remove('left', 'center', 'right', 'out'));
-      const left = (idx + cards.length - 1) % cards.length;
-      const center = idx % cards.length;
-      const right = (idx + 1) % cards.length;
-      cards[left].classList.add('left');
-      cards[center].classList.add('center');
-      cards[right].classList.add('right');
-      // Others (if >3) go out
-      cards.forEach((c, i) => {
-        if (i !== left && i !== center && i !== right) c.classList.add('out');
-      });
-
-      // Auto-size grid height to tallest card
-      updateGridHeight();
-    };
-
-    applyPositions();
-
-    let timer = null;
-    const start = () => {
-      if (timer) return;
-      timer = setInterval(() => { idx = (idx + 1) % cards.length; applyPositions(); }, 4000);
-    };
-    const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
-
-    // Pause on hover/touch
-    grid.addEventListener('mouseenter', stop);
-    grid.addEventListener('mouseleave', start);
-    grid.addEventListener('touchstart', stop, { passive: true });
-    grid.addEventListener('touchend', start, { passive: true });
-
-    // Pause when tab is hidden to save CPU, resume when visible
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        stop();
-      } else {
-        start();
-      }
-    });
-
-    window.addEventListener('resize', () => {
-      // debounce via rAF
-      requestAnimationFrame(updateGridHeight);
-    });
-
-    start();
-    // Initial height set after layout
-    requestAnimationFrame(updateGridHeight);
-  })();
-
-  
-
-  // Parallax: update --parallax-y on hero as user scrolls (lightweight, raf throttled)
-  (function initParallax() {
-    const hero = document.querySelector('.hero-section');
-    if (!hero) return;
-    let ticking = false;
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(() => {
-        // distance scrolled relative to hero height, clamped
-        const rect = hero.getBoundingClientRect();
-        const viewportH = window.innerHeight || document.documentElement.clientHeight;
-        const visible = 1 - Math.min(Math.max((rect.top + rect.height) / (viewportH + rect.height), 0), 1);
-        // scale value for subtle effect
-        const offset = Math.round(visible * 40); // max ~40px shift
-        hero.style.setProperty('--parallax-y', `${offset}px`);
-        ticking = false;
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    // initial set
-    onScroll();
-  })();
-
   // Show sections
   function showLibrary(type) {
     // Hide all sections
@@ -260,8 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (current) {
       current.style.display = 'block';
       setTimeout(() => current.classList.add('active'), 0);
-      // Initialize scroll reveal for the visible section
-      addScrollReveal(current);
 
       // Load content if needed
       // If a simple page content exists for this section, render it and skip structured loaders
@@ -482,7 +311,6 @@ document.addEventListener('DOMContentLoaded', () => {
     for (let i = 1; i <= 6; i++) {
       const btn = document.createElement('button');
       btn.className = 'year-btn';
-      btn.setAttribute('data-scroll', i % 2 === 0 ? 'right' : 'left');
       btn.dataset.yearId = i;
       btn.innerHTML = `
         <div class="year-icon">${i}</div>
@@ -504,8 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       grid.appendChild(btn);
     }
-    // Animate in
-    addScrollReveal(grid);
   }
 
   async function loadSubjects(type, year) {
@@ -583,7 +409,6 @@ document.addEventListener('DOMContentLoaded', () => {
       subjects.forEach(subject => {
         const btn = document.createElement('button');
         btn.className = 'subject-btn';
-        btn.setAttribute('data-scroll', Math.random() > 0.5 ? 'left' : 'right');
         btn.dataset.subjectId = subject.id;
         btn.innerHTML = `
           <div style="font-size:1.5rem;display:inline-block;margin-right:0.5rem;vertical-align:middle;">
@@ -602,8 +427,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         grid.appendChild(btn);
       });
-      // Reveal animation for new buttons
-      addScrollReveal(grid);
 
     } catch (error) {
       console.error('Error loading subjects:', error);
@@ -694,7 +517,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = resolveLink(r);
         const item = document.createElement('div');
         item.className = 'resource-card';
-        item.setAttribute('data-scroll', Math.random() > 0.5 ? 'left' : 'right');
         
         // Determine file type for styling
         const getFileType = (resource) => {
@@ -760,8 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         grid.appendChild(item);
       });
-      // Reveal animation for resource cards
-      addScrollReveal(grid);
     } catch (error) {
       console.error('Error loading resources:', error);
       grid.innerHTML = `<p class="error">Failed to load resources. ${error?.message || ''}</p>`;
@@ -844,7 +664,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const link = resolveLink(r);
         const item = document.createElement('div');
         item.className = 'card';
-        item.setAttribute('data-scroll', Math.random() > 0.5 ? 'left' : 'right');
         item.style.padding = '1rem';
         item.innerHTML = `
           <div class="title" style="font-weight:600;margin-bottom:.25rem;">${r.title}</div>
@@ -856,8 +675,6 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         grid.appendChild(item);
       });
-      // Reveal animation for question items
-      addScrollReveal(grid);
     } catch (error) {
       console.error('Error loading questions:', error);
       grid.innerHTML = `<p class="error">Failed to load questions. ${error?.message || ''}</p>`;
