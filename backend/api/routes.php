@@ -14,10 +14,14 @@ header('Access-Control-Allow-Origin: *');
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/controllers/AdminController.php';
 require_once __DIR__ . '/controllers/StudentController.php';
+require_once __DIR__ . '/controllers/ChatController.php';
 
-$config = require __DIR__ . '/config.php';
+// Prefer local config override if present
+$configPath = file_exists(__DIR__ . '/config.local.php') ? (__DIR__ . '/config.local.php') : (__DIR__ . '/config.php');
+$config = require $configPath;
 $admin = new AdminController($pdo, $config);
 $student = new StudentController($pdo);
+$chat = new ChatController($config);
 
 $action = $_GET['action'] ?? $_POST['action'] ?? null;
 
@@ -133,6 +137,11 @@ try {
     // Helpers
     case 'list_all_subjects':
       json_ok($admin->listAllSubjects());
+      break;
+
+    case 'chat':
+      // Expects POST JSON: { message: "..." }
+      $chat->chat();
       break;
 
     default:

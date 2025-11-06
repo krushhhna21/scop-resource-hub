@@ -19,4 +19,7 @@ return [
     'video/mp4',
     'text/plain'
   ]
+  ,
+  'gemini_api_key' => '',
+  'gemini_model' => 'gemini-1.5-flash'
 ];

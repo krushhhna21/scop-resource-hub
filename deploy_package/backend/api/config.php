@@ -19,4 +19,8 @@ return [
     'video/mp4',
     'text/plain'
   ]
+  ,
+  // Gemini AI settings
+  'gemini_api_key' => '',
+  'gemini_model' => 'gemini-1.5-flash'
 ];

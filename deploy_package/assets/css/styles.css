@@ -433,6 +433,34 @@ body {
   padding: 1rem;
 }
 
+/* Chatbot widget styles appended */
+.chatbot-fab{position:fixed;right:20px;bottom:20px;width:56px;height:56px;border-radius:50%;background:#0ea5e9;color:#fff;border:none;box-shadow:0 8px 30px rgba(0,0,0,.25);z-index:9999;display:flex;align-items:center;justify-content:center;font-weight:700}
+.chatbot-panel{position:fixed;right:20px;bottom:86px;width:320px;max-height:60vh;background:rgba(255,255,255,0.98);box-shadow:0 12px 40px rgba(0,0,0,0.2);border-radius:12px;overflow:hidden;z-index:9999;display:flex;flex-direction:column}
+.chatbot-header{padding:10px 12px;background:#05668d;color:#fff;font-weight:600}
+.chatbot-body{padding:10px;flex:1;overflow:auto;font-size:14px}
+.chatbot-input{display:flex;border-top:1px solid #eee}
+.chatbot-input textarea{flex:1;border:0;padding:8px;resize:none;height:44px}
+.chatbot-input button{width:64px;border:0;background:#0ea5e9;color:#fff}
+.chatbot-msg{margin-bottom:8px}
+.chatbot-msg.user{text-align:right}
+.chatbot-msg .bubble{display:inline-block;padding:8px 10px;border-radius:10px;max-width:85%}
+.chatbot-msg.user .bubble{background:#0ea5e9;color:#fff}
+.chatbot-msg.bot .bubble{background:#f1f5f9;color:#000}
+
+/* Robot icon animations */
+.chatbot-fab svg.chatbot-bot{width:28px;height:28px;display:block}
+.chatbot-fab .chatbot-bot{animation:bot-float 3s ease-in-out infinite}
+.chatbot-fab .antenna{transform-origin:center;animation:bot-pulse 2.2s ease-in-out infinite}
+.chatbot-fab .eye{transform-origin:center;animation:bot-blink 5s infinite}
+@keyframes bot-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
+@keyframes bot-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+@keyframes bot-blink{0%,96%,100%{transform:scaleY(1)}97%{transform:scaleY(0.1)}98%{transform:scaleY(1.2)}99%{transform:scaleY(1)}}
+@media (prefers-reduced-motion: reduce){
+  .chatbot-fab .chatbot-bot,
+  .chatbot-fab .antenna,
+  .chatbot-fab .eye{animation:none}
+}
+
 .menu-item {
   display: flex;
   align-items: center;

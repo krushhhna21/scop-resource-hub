@@ -22,4 +22,10 @@ return [
     'video/mp4',
     'text/plain'
   ]
+  ,
+  // Gemini AI (optional) — set an API key from Google AI Studio for free tier.
+  // You can also set via environment variables GEMINI_API_KEY and GEMINI_MODEL.
+    'gemini_api_key' => '',
+    'gemini_model' => 'gemini-1.5-flash-latest',
+    'gemini_api_version' => 'v1beta'
 ];

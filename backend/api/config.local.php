@@ -19,4 +19,9 @@ return [
     'video/mp4',
     'text/plain'
   ]
+  ,
+  // Gemini AI settings for local dev
+  'gemini_api_key' => 'AIzaSyB20kFF1Gk0QaJ2Fp2Cbol3mxJDTAVH3wg',
+   'gemini_model' => 'gemini-1.5-flash-latest',
+   'gemini_api_version' => 'v1beta'
 ];
