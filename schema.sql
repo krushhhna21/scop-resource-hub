@@ -1,11 +1,18 @@
 -- Database schema for SCOP Pharm D Resource Hub
 -- Engine: InnoDB; Charset: utf8mb4
 
+-- Users table (extended for Google auth + roles)
 CREATE TABLE IF NOT EXISTS users (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  username VARCHAR(64) NOT NULL UNIQUE,
+  email VARCHAR(255) UNIQUE NULL,
+  username VARCHAR(64) NULL UNIQUE,
+  display_name VARCHAR(255) NULL,
   password_hash VARCHAR(255) NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  role ENUM('admin','faculty','student') DEFAULT 'student',
+  is_active TINYINT(1) DEFAULT 1,
+  is_approved TINYINT(1) DEFAULT 0,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS years (
@@ -47,6 +54,19 @@ CREATE TABLE IF NOT EXISTS resource_views (
   user_agent VARCHAR(255) NULL,
   CONSTRAINT fk_view_resource FOREIGN KEY (resource_id) REFERENCES resources(id) ON DELETE CASCADE,
   INDEX idx_resource_time (resource_id, viewed_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Student profiles table (used by directory & approval UI)
+CREATE TABLE IF NOT EXISTS student_profiles (
+  user_id INT PRIMARY KEY,
+  batch_year INT NULL,
+  linkedin_url VARCHAR(512),
+  instagram_url VARCHAR(512),
+  twitter_url VARCHAR(512),
+  bio TEXT,
+  avatar_url VARCHAR(512),
+  course VARCHAR(128),
+  CONSTRAINT fk_student_profiles_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Seed years 1..6
@@ -106,3 +126,30 @@ JOIN (
   UNION ALL SELECT 6, 'Internship', 'Practical experience in hospital or clinical settings, including postings in specialty units like General Medicine, Surgery, Pediatrics, and Psychiatry'
 ) s ON s.year_number = y.year_number
 WHERE NOT EXISTS (SELECT 1 FROM subjects WHERE year_id = y.id AND name = s.name);
+
+-- Vacancies table (career openings / internships)
+CREATE TABLE IF NOT EXISTS vacancies (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  title VARCHAR(255) NOT NULL,
+  company VARCHAR(255) NULL,
+  location VARCHAR(255) NULL,
+  category VARCHAR(64) NULL,
+  description TEXT NULL,
+  application_link VARCHAR(512) NULL,
+  posted_by INT NULL,
+  batch_filter INT NULL,
+  is_active TINYINT(1) DEFAULT 1,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_vacancy_user FOREIGN KEY (posted_by) REFERENCES users(id) ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Referral requests table (students requesting referrals for vacancies)
+CREATE TABLE IF NOT EXISTS referral_requests (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  vacancy_id INT NOT NULL,
+  requester_id INT NOT NULL,
+  message TEXT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_referral_vacancy FOREIGN KEY (vacancy_id) REFERENCES vacancies(id) ON DELETE CASCADE,
+  CONSTRAINT fk_referral_requester FOREIGN KEY (requester_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

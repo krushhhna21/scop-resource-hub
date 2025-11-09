@@ -5,14 +5,32 @@ class DirectoryController {
 
   public function listStudents(?string $q=null, ?int $batch=null) : array {
     try {
-      $sql = "SELECT u.id, u.display_name, sp.batch_year, sp.linkedin_url, sp.instagram_url, sp.twitter_url, sp.avatar_url\n              FROM users u LEFT JOIN student_profiles sp ON sp.user_id = u.id\n              WHERE u.role = 'student' AND u.is_active = 1";
+      $dbName = $this->pdo->query("SELECT DATABASE()")->fetchColumn();
+      $hasIsActive = $this->hasColumn($dbName, 'users', 'is_active');
+      $hasIsApproved = $this->hasColumn($dbName, 'users', 'is_approved');
+      $hasRole = $this->hasColumn($dbName, 'users', 'role');
+
       $params = [];
-      if ($q) { $sql .= " AND (u.display_name LIKE :q OR sp.linkedin_url LIKE :q)"; $params[':q'] = "%$q%"; }
-      if ($batch) { $sql .= " AND sp.batch_year = :b"; $params[':b'] = $batch; }
-      $sql .= " ORDER BY sp.batch_year DESC, u.display_name ASC LIMIT 500";
+      $baseWhere = [];
+      if ($hasRole) { $baseWhere[] = "(u.role = 'student' OR u.role IS NULL OR u.role = '' OR u.role='user')"; }
+      if ($hasIsActive) { $baseWhere[] = 'u.is_active = 1'; }
+      if ($hasIsApproved) { $baseWhere[] = 'u.is_approved = 1'; }
+      if ($q) { $baseWhere[] = '(u.display_name LIKE :q OR sp.linkedin_url LIKE :q)'; $params[':q'] = "%$q%"; }
+      if ($batch) { $baseWhere[] = 'sp.batch_year = :b'; $params[':b'] = $batch; }
+      if (empty($baseWhere)) { $baseWhere[] = '1=1'; }
+
+      $sql = "SELECT u.id, u.display_name, sp.batch_year, sp.course, sp.linkedin_url, sp.instagram_url, sp.twitter_url, sp.avatar_url\n              FROM users u LEFT JOIN student_profiles sp ON sp.user_id = u.id\n              WHERE " . implode(' AND ', $baseWhere) . " ORDER BY sp.batch_year DESC, u.display_name ASC LIMIT 500";
       $st = $this->pdo->prepare($sql); $st->execute($params);
       return $st->fetchAll(PDO::FETCH_ASSOC) ?: [];
     } catch (Throwable $e) { return []; }
+  }
+
+  private function hasColumn($db, $table, $col) : bool {
+    try {
+      $stmt = $this->pdo->prepare("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?");
+      $stmt->execute([$db, $table, $col]);
+      return intval($stmt->fetchColumn()) > 0;
+    } catch (Throwable $e) { return false; }
   }
 
   public function upsertStudentProfile(int $userId, ?int $batchYear, ?string $linkedin, ?string $instagram, ?string $twitter, ?string $bio, ?string $avatar) : array {

@@ -77,6 +77,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Initialize menu if elements exist
   if (menuButton && menuContent) {
+    // Accessibility label fallback
+    if (!menuButton.getAttribute('aria-label')) menuButton.setAttribute('aria-label', 'Open main menu');
+    // Show first-day (or once-per-day) attraction prompt
+    (function initMenuPrompt(){
+      try {
+        const PREF_KEY = 'menu_prompt_last_seen';
+        const last = localStorage.getItem(PREF_KEY);
+        const today = new Date().toISOString().slice(0,10); // YYYY-MM-DD
+        const shouldShow = !last || last !== today;
+        if (!shouldShow) return; // already shown today
+        // Mark as shown immediately to avoid duplicates in multi-load scenarios
+        localStorage.setItem(PREF_KEY, today);
+        // Add attraction class to button
+        menuButton.classList.add('attract');
+        // Build prompt element
+        const prompt = document.createElement('div');
+        prompt.className = 'menu-prompt';
+        prompt.setAttribute('role','status');
+        prompt.setAttribute('aria-live','polite');
+        prompt.innerHTML = '<span class="finger">👉</span><span>Click me</span>';
+        document.body.appendChild(prompt);
+        // Auto dismiss after 8s
+        const dismiss = () => {
+          prompt.style.transition = 'opacity .4s ease, transform .4s ease';
+          prompt.style.opacity = '0';
+          prompt.style.transform = 'translateY(-4px) scale(.96)';
+          setTimeout(()=>{ prompt.remove(); menuButton.classList.remove('attract'); }, 420);
+        };
+        setTimeout(dismiss, 8000);
+        // Dismiss on interaction
+        menuButton.addEventListener('click', dismiss, { once: true });
+        prompt.addEventListener('click', () => { menuButton.click(); dismiss(); });
+        // Respect reduced motion: remove bob animation
+        if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+          prompt.style.animation = 'menu-prompt-in .45s cubic-bezier(.2,.8,.2,1) forwards';
+        }
+      } catch(e){ console.warn('Menu prompt init error:', e); }
+    })();
     // ensure overlay exists
     let overlay = document.querySelector('.overlay');
     if (!overlay) {
@@ -225,7 +263,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let timer = null;
     const start = () => {
       if (timer) return;
-      timer = setInterval(() => { idx = (idx + 1) % cards.length; applyPositions(); }, 4000);
+      timer = setInterval(() => { idx = (idx + 1) % cards.length; applyPositions(); }, 5000);
     };
     const stop = () => { if (timer) { clearInterval(timer); timer = null; } };
 
@@ -280,7 +318,7 @@ document.addEventListener('DOMContentLoaded', () => {
     onScroll();
   })();
 
-  // Hero slideshow rotation (every 3s) with glass shine tracking
+  // Hero slideshow rotation (every 5s) with glass shine tracking
   (function initHeroSlideshow(){
     const slides = Array.from(document.querySelectorAll('.hero-slideshow .hero-slide'));
     if (slides.length <= 1) return;
@@ -302,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
       prev = idx;
     }
     function next(){ i = (i+1) % slides.length; activate(i); }
-    function start(){ if (prefersReduced) return; timer = setInterval(next, 3000); }
+  function start(){ if (prefersReduced) return; timer = setInterval(next, 4000); }
     function stop(){ if (timer){ clearInterval(timer); timer=null; } }
     // Pause on interaction
     const root = document.querySelector('.hero-slideshow');
@@ -321,6 +359,20 @@ document.addEventListener('DOMContentLoaded', () => {
     activate(i); start();
     document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stop(); else start(); });
   })();
+
+  // Make hero slideshow CTA links (href="#type=...") reliably switch sections
+  document.addEventListener('click', (e) => {
+    const a = e.target.closest('.hero-slideshow a[href^="#type="]');
+    if (!a) return;
+    e.preventDefault();
+    const hash = a.getAttribute('href');
+    if (!hash) return;
+    if (location.hash !== hash) {
+      location.hash = hash;
+    }
+    // Immediately render the target section and scroll into view
+    try { handleHashChange(); } catch(_) {}
+  });
 
   // Show sections
   function showLibrary(type) {
@@ -350,6 +402,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(location.hash.slice(1));
         const year = params.get('year');
         const subject = params.get('subject');
+        const system = params.get('system');
         if (subject) {
           loadResources(type, year, subject);
         } else if (year) {
@@ -359,6 +412,8 @@ document.addEventListener('DOMContentLoaded', () => {
           } else {
             loadSubjects(type, year);
           }
+        } else if (type === 'questions' && system) {
+          loadQuestionsBySystem(type, system);
         } else {
           loadYears(type);
         }
@@ -545,6 +600,49 @@ document.addEventListener('DOMContentLoaded', () => {
   function loadYears(type) {
     const content = document.getElementById(`${type}-content`);
     if (!content) return;
+
+    // Special UI for case studies: show systems instead of years
+    if (type === 'questions') {
+      content.innerHTML = `
+        <div class="section-header">
+          <h2>Select System</h2>
+          <p class="muted">Pick a body system to view case studies</p>
+        </div>
+        <div class="grid"></div>
+      `;
+
+      const systems = [
+        { key: 'gastrointestinal', label: 'Gastrointestinal system', idx: 1, icon: '🍽️' },
+        { key: 'nervous', label: 'Nervous system', idx: 2, icon: '🧠' },
+        { key: 'haematological', label: 'Haematological system', idx: 3, icon: '🩸' },
+        { key: 'infectious', label: 'Infectious disease', idx: 4, icon: '🦠' },
+        { key: 'renal', label: 'Renal system', idx: 5, icon: '🧪' },
+        { key: 'musculoskeletal', label: 'Musculoskeletal system', idx: 6, icon: '🦴' }
+      ];
+
+      const grid = content.querySelector('.grid');
+      systems.forEach((s, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'year-btn';
+        btn.setAttribute('data-scroll', i % 2 === 0 ? 'left' : 'right');
+        btn.dataset.system = s.key;
+        btn.dataset.yearId = s.idx; // mapped index for backend
+        btn.innerHTML = `
+          <div class="year-icon">${s.icon}</div>
+          <div class="content">
+            <div class="title">${s.label}</div>
+          </div>
+          <div class="arrow">→</div>
+        `;
+        btn.addEventListener('click', () => {
+          // Route with system param; we'll map to year on load
+          location.hash = '#' + new URLSearchParams({ type, system: s.key }).toString();
+        });
+        grid.appendChild(btn);
+      });
+      addScrollReveal(grid);
+      return;
+    }
 
     content.innerHTML = `
       <div class="section-header">
@@ -853,11 +951,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!content) return;
 
     const titles = {
-      'questions': 'Previous Year Questions',
+      'questions': 'Case Studies',
       'important-questions': 'Important Questions'
     };
     const descriptions = {
-      'questions': 'All question papers for the selected year',
+  'questions': 'All case studies for the selected year',
       'important-questions': 'Important questions for the selected year'
     };
 
@@ -868,12 +966,12 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="section-header">
         <h2>${titles[type] || 'Questions'}</h2>
-        <p class="muted">${descriptions[type] || 'All questions for the selected year'}</p>
+        <p class="muted">${descriptions[type] || 'All case studies for the selected year'}</p>
       </div>
       <div class="grid">
         <div class="loading">
           <div class="spinner"></div>
-          <p>Loading ${type === 'important-questions' ? 'important questions' : 'questions'}...</p>
+          <p>Loading ${type === 'important-questions' ? 'important questions' : 'case studies'}...</p>
         </div>
       </div>
     `;
@@ -905,7 +1003,7 @@ document.addEventListener('DOMContentLoaded', () => {
       grid.innerHTML = '';
 
       if (questions.length === 0) {
-        const itemType = type === 'important-questions' ? 'important questions' : 'question papers';
+        const itemType = type === 'important-questions' ? 'important questions' : 'case studies';
         grid.innerHTML = `<p class="muted">No ${itemType} found for this year.</p>`;
         return;
       }
@@ -939,8 +1037,46 @@ document.addEventListener('DOMContentLoaded', () => {
       addScrollReveal(grid);
     } catch (error) {
       console.error('Error loading questions:', error);
-      grid.innerHTML = `<p class="error">Failed to load questions. ${error?.message || ''}</p>`;
+      grid.innerHTML = `<p class="error">Failed to load ${type === 'important-questions' ? 'important questions' : 'case studies'}. ${error?.message || ''}</p>`;
     }
+  }
+
+  // Map system -> year index and render via year loader to reuse backend
+  function mapSystemToYear(systemKey) {
+    const map = {
+      'gastrointestinal': 1,
+      'nervous': 2,
+      'haematological': 3,
+      'infectious': 4,
+      'renal': 5,
+      'musculoskeletal': 6
+    };
+    return map[systemKey] || null;
+  }
+
+  async function loadQuestionsBySystem(type, systemKey) {
+    const yearIdx = mapSystemToYear(systemKey);
+    const content = document.getElementById(`${type}-content`);
+    if (!content) return;
+    if (!yearIdx) {
+      content.innerHTML = `<p class="error">Unknown system.</p>`;
+      return;
+    }
+    // Reuse year-based loader
+    await loadQuestionsByYear(type, yearIdx);
+    // Update header to include system label
+    const labelMap = {
+      'gastrointestinal': 'Gastrointestinal system',
+      'nervous': 'Nervous system',
+      'haematological': 'Haematological system',
+      'infectious': 'Infectious disease',
+      'renal': 'Renal system',
+      'musculoskeletal': 'Musculoskeletal system'
+    };
+    const hdr = content.querySelector('.section-header h2');
+    if (hdr) hdr.textContent = `Case Studies — ${labelMap[systemKey] || 'System'}`;
+    const back = content.querySelector('#backToYears');
+    if (back) back.textContent = '← Back to Systems';
   }
 
   // Load career opportunities directly
@@ -1022,13 +1158,22 @@ document.addEventListener('DOMContentLoaded', () => {
   handleHashChange();
 });
 
-// Directory loader
+// Directory loader with explicit logging & fallback to hosting path
 async function loadDirectory() {
   const container = document.getElementById('directory-content');
   if (!container) return;
-  const root = document;
-  // Use the unified API_BASE resolved at startup to avoid path mismatches
-  const apiBase = (typeof API_BASE !== 'undefined' && API_BASE) ? API_BASE : (root.querySelector('meta[name="api-base"]')?.content || 'backend/api/index.php');
+  const metaBase = document.querySelector('meta[name="api-base"]')?.content;
+  // Try relative (local dev) and absolute (hosting) variants
+  const candidates = [];
+  if (typeof API_BASE !== 'undefined' && API_BASE) candidates.push(API_BASE);
+  if (metaBase) candidates.push(metaBase);
+  candidates.push('backend/api/index.php');
+  // Hosting canonical path
+  if (location.hostname && !location.hostname.match(/localhost|127\.0\.0\.1/)) {
+    candidates.push('/api/index.php');
+  }
+  // De-duplicate
+  const apiCandidates = [...new Set(candidates)];
 
   container.innerHTML = `
     <div class="actions" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
@@ -1041,49 +1186,134 @@ async function loadDirectory() {
     </div>
   `;
   const grid = container.querySelector('#dirGrid');
+  // Quiet production: no directory debug logs rendered or printed
+  function log() { /* no-op */ }
+  log('api candidates', apiCandidates);
+
+  async function tryFetch(base, params) {
+    const url = `${base}${base.includes('?') ? '&' : '?'}action=list_students&${params.toString()}`;
+    log('fetch attempt', { url });
+    try {
+      const res = await fetch(url, { credentials: 'include' });
+      log('response status', { url, status: res.status });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      let parsed;
+      try { parsed = JSON.parse(text); } catch (e) { log('json parse fail', { snippet: text.slice(0,120) }); return null; }
+      if (!Array.isArray(parsed)) { log('not array payload', { type: typeof parsed }); return null; }
+      log('parsed ok', { count: parsed.length });
+      return parsed;
+    } catch (e) {
+      log('fetch error', { base, message: e.message });
+      return null;
+    }
+  }
+
   const fetchAndRender = async () => {
     const q = container.querySelector('#dirSearch').value.trim();
     const b = container.querySelector('#dirBatch').value.trim();
     const params = new URLSearchParams();
     if (q) params.set('q', q);
     if (b) params.set('batch', b);
-    try {
-      const res = await fetch(`${apiBase}?action=list_students&${params.toString()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const items = await res.json();
-      if (!items || items.length === 0) {
-        grid.innerHTML = '<div class="empty-state"><p>No students found.</p></div>';
-        return;
-      }
-      grid.innerHTML = items.map(s => `
-        <div class="card" data-scroll="up" style="display:flex;gap:.75rem;align-items:center;">
-          <img src="${s.avatar_url || 'assets/images/logo.jpeg'}" alt="Avatar" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" />
-          <div style="flex:1;">
-            <div style="font-weight:600;">${s.display_name || 'Student'}</div>
-            <div class="muted" style="font-size:.85rem;">${[s.course||'', s.batch_year ? `Year ${s.batch_year}` : ''].filter(Boolean).join(' • ')}</div>
-            <div style="margin-top:.25rem;display:flex;gap:.5rem;flex-wrap:wrap;">
-              ${s.linkedin_url ? `<a class="btn small ghost" target="_blank" rel="noopener" href="${s.linkedin_url}">LinkedIn</a>` : ''}
-              ${s.instagram_url ? `<a class="btn small ghost" target="_blank" rel="noopener" href="${s.instagram_url}">Instagram</a>` : ''}
-              ${s.twitter_url ? `<a class="btn small ghost" target="_blank" rel="noopener" href="${s.twitter_url}">Twitter</a>` : ''}
+
+    grid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+    for (const base of apiCandidates) {
+      const items = await tryFetch(base, params);
+      if (items && items.length >= 0) { // accept empty array as success
+        if (!items.length) {
+          grid.innerHTML = '<div class="empty-state"><p>No students found.</p></div>';
+        } else {
+          // Primary: template HTML render (no debug banner)
+          grid.innerHTML = items.map(s => `
+            <div class="card" data-scroll="up" style="display:flex;gap:.75rem;align-items:center;">
+              <img src="${s.avatar_url || 'assets/images/logo.jpeg'}" alt="Avatar" style="width:48px;height:48px;border-radius:50%;object-fit:cover;" />
+              <div style="flex:1;">
+                <div class="dir-name" style="font-weight:600;">${s.display_name || 'Student'}</div>
+                <div class="muted" style="font-size:.85rem;">${[s.course||'Pharm D', s.batch_year ? `Year ${s.batch_year}` : ''].filter(Boolean).join(' • ')}</div>
+                <div style="margin-top:.25rem;display:flex;gap:.5rem;flex-wrap:wrap;">
+                  ${s.linkedin_url ? `<a class="btn small ghost" target="_blank" rel="noopener" href="${s.linkedin_url}">LinkedIn</a>` : ''}
+                  ${s.instagram_url ? `<a class="btn small ghost" target="_blank" rel="noopener" href="${s.instagram_url}">Instagram</a>` : ''}
+                  ${s.twitter_url ? `<a class="btn small ghost" target="_blank" rel="noopener" href="${s.twitter_url}">Twitter</a>` : ''}
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-      `).join('');
-    } catch (e) {
-      console.error('Directory load failed', e);
-      grid.innerHTML = `<div class="error-state"><p>Failed to load directory</p><small class="muted">${e.message}</small></div>`;
+          `).join('');
+          // Fallback: if something prevented HTML from rendering, build DOM nodes
+          if (!grid.querySelector('.card')) {
+            const frag = document.createDocumentFragment();
+            items.forEach(s => {
+              const wrap = document.createElement('div');
+              wrap.className = 'card';
+              wrap.setAttribute('data-scroll','up');
+              wrap.style.cssText = 'display:flex;gap:.75rem;align-items:center;';
+              const img = document.createElement('img');
+              img.src = s.avatar_url || 'assets/images/logo.jpeg';
+              img.alt = 'Avatar';
+              img.style.cssText = 'width:48px;height:48px;border-radius:50%;object-fit:cover;';
+              const right = document.createElement('div');
+              right.style.flex = '1';
+              const name = document.createElement('div');
+              name.className = 'dir-name';
+              name.style.fontWeight = '600';
+              name.textContent = s.display_name || 'Student';
+              const meta = document.createElement('div');
+              meta.className = 'muted';
+              meta.style.fontSize = '.85rem';
+              const parts = [];
+              parts.push(s.course || 'Pharm D');
+              if (s.batch_year) parts.push(`Year ${s.batch_year}`);
+              meta.textContent = parts.filter(Boolean).join(' • ');
+              right.appendChild(name); right.appendChild(meta);
+              wrap.appendChild(img); wrap.appendChild(right);
+              frag.appendChild(wrap);
+            });
+            grid.replaceChildren(frag);
+          }
+          // Ultra‑resilient second-pass: verify after paint; if still no cards, inject minimalist text list
+          setTimeout(() => {
+            try {
+              const cardsNow = grid.querySelectorAll('.card');
+              if (!cardsNow.length) {
+                log('second-pass fallback engaged (no .card elements after timeout)');
+                const simple = document.createElement('div');
+                simple.style.cssText='grid-column:1/-1;padding:8px 10px;border:1px dashed #ccc;border-radius:8px;font-size:.8rem;background:#fff;';
+                simple.innerHTML = '<strong>Directory</strong><br>' + items.map(s=> (s.display_name||'Student') + (s.batch_year?` (Year ${s.batch_year})`: '')).join('<br>');
+                grid.appendChild(simple);
+              } else {
+                log('cards present after initial render', { count: cardsNow.length, innerHTMLLength: grid.innerHTML.length });
+              }
+            } catch(err){ log('second-pass error', { message: err.message }); }
+          }, 120);
+          // No debug metrics in production
+          try { if (typeof addScrollReveal === 'function') { addScrollReveal(grid); } } catch(_) {}
+          // If scroll reveal helper isn't in scope (closure), force visibility so opacity:0 rule doesn't hide cards
+          if (typeof addScrollReveal !== 'function') {
+            grid.querySelectorAll('[data-scroll]').forEach(el => el.classList.add('scroll-visible'));
+          }
+        }
+        return; // done after first successful base
+      }
     }
+    grid.innerHTML = '<div class="error-state"><p>Failed to load directory from all endpoints.</p></div>';
   };
   container.querySelector('#dirLoad').addEventListener('click', fetchAndRender);
   fetchAndRender();
 }
 
-// Vacancies loader
+// Vacancies loader with multi-endpoint fallback & debug
 async function loadVacancies() {
   const container = document.getElementById('vacancies-content');
   if (!container) return;
-  const root = document;
-  const apiBase = root.querySelector('meta[name="api-base"]')?.content || (window.API_BASE || 'backend/api/index.php');
+  const metaBase = document.querySelector('meta[name="api-base"]')?.content;
+  const candidates = [];
+  if (typeof API_BASE !== 'undefined' && API_BASE) candidates.push(API_BASE);
+  if (metaBase) candidates.push(metaBase);
+  candidates.push('backend/api/index.php');
+  if (location.hostname && !location.hostname.match(/localhost|127\.0\.0\.1/)) {
+    candidates.push('/api/index.php');
+  }
+  const apiCandidates = [...new Set(candidates)];
+
   container.innerHTML = `
     <div class="actions" style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;">
       <input id="vacSearch" class="input" placeholder="Search title/company/location..." style="flex:1;min-width:240px;" />
@@ -1096,6 +1326,26 @@ async function loadVacancies() {
     </div>
   `;
   const grid = container.querySelector('#vacGrid');
+  // Quiet production: no vacancy debug logs rendered or printed
+  function log() { /* no-op */ }
+  log('api candidates', apiCandidates);
+
+  async function tryFetch(base, params) {
+    const url = `${base}${base.includes('?') ? '&' : '?'}action=list_vacancies&${params.toString()}`;
+    log('fetch attempt', { url });
+    try {
+      const res = await fetch(url, { credentials: 'include' });
+      log('response status', { url, status: res.status });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const text = await res.text();
+      let parsed;
+      try { parsed = JSON.parse(text); } catch (e) { log('json parse fail', { snippet: text.slice(0,120) }); return null; }
+      if (!Array.isArray(parsed)) { log('not array payload', { type: typeof parsed }); return null; }
+      log('parsed ok', { count: parsed.length });
+      return parsed;
+    } catch (e) { log('fetch error', { base, message: e.message }); return null; }
+  }
+
   const fetchAndRender = async () => {
     const q = container.querySelector('#vacSearch').value.trim();
     const c = container.querySelector('#vacCategory').value.trim();
@@ -1104,29 +1354,36 @@ async function loadVacancies() {
     if (q) params.set('q', q);
     if (c) params.set('category', c);
     if (b) params.set('batch', b);
-    try {
-      const res = await fetch(`${apiBase}?action=list_vacancies&${params.toString()}`);
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const items = await res.json();
-      if (!items || items.length === 0) { grid.innerHTML = '<div class="empty-state"><p>No vacancies right now.</p></div>'; return; }
-      grid.innerHTML = items.map(v => `
-        <div class="card" data-scroll="up" style="padding:1rem;">
-          <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start;">
-            <div>
-              <div style="font-weight:700;">${v.title}</div>
-              <div class="muted" style="font-size:.9rem;">${v.company || ''}${v.location ? ' • ' + v.location : ''}</div>
-              ${v.category ? `<div class="muted" style="margin-top:.25rem;">Category: ${v.category}</div>` : ''}
+    grid.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading...</p></div>';
+    for (const base of apiCandidates) {
+      const items = await tryFetch(base, params);
+      if (items && items.length >= 0) {
+        if (!items.length) {
+          grid.innerHTML = '<div class="empty-state"><p>No vacancies right now.</p></div>';
+        } else {
+          grid.innerHTML = items.map(v => `
+            <div class="card" data-scroll="up" style="padding:1rem;">
+              <div style="display:flex;justify-content:space-between;gap:.5rem;align-items:flex-start;">
+                <div>
+                  <div style="font-weight:700;">${v.title}</div>
+                  <div class="muted" style="font-size:.9rem;">${v.company || ''}${v.location ? ' • ' + v.location : ''}</div>
+                  ${v.category ? `<div class="muted" style="margin-top:.25rem;">Category: ${v.category}</div>` : ''}
+                </div>
+                ${v.application_link ? `<a class="btn small" target="_blank" rel="noopener" href="${v.application_link}">Apply</a>` : ''}
+              </div>
+              ${v.description ? `<p style=\"margin-top:.5rem;\">${v.description}</p>` : ''}
+              ${v.posted_by_name ? `<div class=\"muted\" style=\"margin-top:.25rem;font-size:.85rem;\">Posted by ${v.posted_by_name}</div>` : ''}
             </div>
-            ${v.application_link ? `<a class="btn small" target="_blank" rel="noopener" href="${v.application_link}">Apply</a>` : ''}
-          </div>
-          ${v.description ? `<p style=\"margin-top:.5rem;\">${v.description}</p>` : ''}
-          ${v.posted_by_name ? `<div class=\"muted\" style=\"margin-top:.25rem;font-size:.85rem;\">Posted by ${v.posted_by_name}</div>` : ''}
-        </div>
-      `).join('');
-    } catch (e) {
-      console.error('Vacancies load failed', e);
-      grid.innerHTML = `<div class=\"error-state\"><p>Failed to load vacancies</p><small class=\"muted\">${e.message}</small></div>`;
+          `).join('');
+          try { if (typeof addScrollReveal === 'function') { addScrollReveal(grid); } } catch(_) {}
+          if (typeof addScrollReveal !== 'function') {
+            grid.querySelectorAll('[data-scroll]').forEach(el => el.classList.add('scroll-visible'));
+          }
+        }
+        return;
+      }
     }
+    grid.innerHTML = '<div class="error-state"><p>Failed to load vacancies from all endpoints.</p></div>';
   };
   container.querySelector('#vacLoad').addEventListener('click', fetchAndRender);
   fetchAndRender();

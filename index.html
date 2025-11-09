@@ -4,11 +4,15 @@
   <meta name="google-client-id" content="614874768179-jeif5hfmlgs7f67mqct37t42soq7qhdg.apps.googleusercontent.com">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Pharm D Navigator</title>
-  <link rel="stylesheet" href="assets/css/styles.css?v=20251107">
+  <title>Pharm D Mates</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20251109e">
   <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
-  <meta name="description" content="Pharm D Navigator — Resource Hub for pharmacy students and faculty">
-  <meta name="api-base" content="api/index.php">
+  <!-- Favicons -->
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg?v=20251109">
+  <link rel="apple-touch-icon" href="assets/images/logo.jpeg?v=20251109">
+  <link rel="shortcut icon" href="assets/images/logo.jpeg?v=20251109">
+  <meta name="description" content="Pharm D Mates — Resource Hub for pharmacy students and faculty">
+  <meta name="api-base" content="/api/index.php">
   <script>
     // Force HTTPS in production to satisfy Google Identity origin checks
     (function(){
@@ -18,7 +22,7 @@
       }
     })();
   </script>
-  <meta name="api-base" content="api/index.php">
+  <meta name="api-base" content="/api/index.php">
 </head>
 <body>
   <!-- Simplified Auth Prompt: redirect instead of inline Google button -->
@@ -30,6 +34,8 @@
           <h2 style="margin:0;font-size:1.35rem;letter-spacing:-.5px;">Access Required</h2>
           <div class="muted" style="font-size:.85rem;">You need to login to view the resources.</div>
         </div>
+        
+
       </div>
       <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.85rem;">
         <a href="login.html" class="btn primary" style="display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600;">
@@ -74,9 +80,9 @@
           <span class="material-icons">work</span>
           Career
         </a>
-        <a href="#" class="menu-item" data-library="questions" role="menuitem">
+  <a href="#" class="menu-item" data-library="questions" role="menuitem">
           <span class="material-icons">quiz</span>
-          Previous Year Questions
+          Case Studies
         </a>
         <a href="#" class="menu-item" data-library="important-questions" role="menuitem">
           <span class="material-icons">priority_high</span>
@@ -106,7 +112,7 @@
             <img src="assets/images/logo.jpeg" alt="Logo">
           </div>
           <div>
-            <h1>Pharm D Navigator</h1>
+            <h1>Pharm D Mates</h1>
             
           </div>
         </div>
@@ -117,12 +123,13 @@
       
       <div class="hero-content">
         <div class="hero-slideshow" aria-live="polite">
+          <!-- Home Slide -->
           <div class="hero-slide active">
-            <div class="hero-glass" role="group" aria-label="Pharm D Co-Pilot slide">
+            <div class="hero-glass" role="group" aria-label="Overview slide">
               <div class="hero-slide-grid">
                 <div class="hero-copy">
                   <h2 class="hero-title">Your Pharm D Co‑Pilot</h2>
-                  <p class="hero-sub">Discover curated books, journals, and question banks — all in one beautiful hub.</p>
+                  <p class="hero-sub">Discover curated books, journals, publications, and question banks — all in one hub.</p>
                   <div class="hero-cta">
                     <a href="#type=books" class="btn">Explore Books</a>
                     <a href="#type=questions" class="btn ghost">Practice Questions</a>
@@ -132,36 +139,202 @@
                   <div class="chip">Glassmorphic UI</div>
                   <div class="chip">Fast Search</div>
                   <div class="chip">Mobile Friendly</div>
-                  <div class="hero-stat">
-                    <div class="num">500+</div>
-                    <div class="label">Resources</div>
-                  </div>
+                  <div class="hero-stat"><div class="num">500+</div><div class="label">Resources</div></div>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Books -->
           <div class="hero-slide">
-            <div class="hero-glass" role="group" aria-label="Study Smart slide">
+            <div class="hero-glass" role="group" aria-label="Books slide">
               <div class="hero-slide-grid">
                 <div class="hero-copy">
-                  <h2 class="hero-title">Study Smarter</h2>
-                  <p class="hero-sub">Track publications and journals with clean previews & quick actions.</p>
+                  <h2 class="hero-title">Books Library</h2>
+                  <p class="hero-sub">Recommended textbooks and references organized by year and subject.</p>
                   <div class="hero-cta">
-                    <a href="#type=publications" class="btn">See Publications</a>
-                    <a href="#type=journals" class="btn ghost">Browse Journals</a>
+                    <a href="#type=books" class="btn">Open Books</a>
+                    <a href="#type=resources" class="btn ghost">All Resources</a>
                   </div>
                 </div>
                 <div class="hero-side">
-                  <div class="chip">Realtime Updates</div>
-                  <div class="chip">Pinned Highlights</div>
-                  <div class="hero-stat">
-                    <div class="num">24×7</div>
-                    <div class="label">Access</div>
-                  </div>
+                  <div class="chip">PDF & Links</div>
+                  <div class="chip">Subject‑wise</div>
+                  <div class="hero-stat"><div class="num">6</div><div class="label">Years</div></div>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Journals -->
+          <div class="hero-slide">
+            <div class="hero-glass" role="group" aria-label="Journals slide">
+              <div class="hero-slide-grid">
+                <div class="hero-copy">
+                  <h2 class="hero-title">Pharmacy Journals</h2>
+                  <p class="hero-sub">Stay updated with latest research and peer‑reviewed articles.</p>
+                  <div class="hero-cta">
+                    <a href="#type=journals" class="btn">Browse Journals</a>
+                    <a href="#type=publications" class="btn ghost">See Publications</a>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="chip">Peer‑Reviewed</div>
+                  <div class="chip">Curated Picks</div>
+                  <div class="hero-stat"><div class="num">+New</div><div class="label">Updates</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Publications -->
+          <div class="hero-slide">
+            <div class="hero-glass" role="group" aria-label="Publications slide">
+              <div class="hero-slide-grid">
+                <div class="hero-copy">
+                  <h2 class="hero-title">Publications</h2>
+                  <p class="hero-sub">Research papers and academic publications from the community.</p>
+                  <div class="hero-cta">
+                    <a href="#type=publications" class="btn">Open Publications</a>
+                    <a href="#type=resources" class="btn ghost">General Resources</a>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="chip">Abstracts</div>
+                  <div class="chip">Downloads</div>
+                  <div class="hero-stat"><div class="num">Top</div><div class="label">Papers</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resources -->
+          <div class="hero-slide">
+            <div class="hero-glass" role="group" aria-label="Resources slide">
+              <div class="hero-slide-grid">
+                <div class="hero-copy">
+                  <h2 class="hero-title">General Resources</h2>
+                  <p class="hero-sub">Notes, forms, and extra materials to support your learning.</p>
+                  <div class="hero-cta">
+                    <a href="#type=resources" class="btn">Find Resources</a>
+                    <a href="#type=books" class="btn ghost">Books</a>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="chip">Forms</div>
+                  <div class="chip">Notes</div>
+                  <div class="hero-stat"><div class="num">New</div><div class="label">Adds</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Previous Year Questions -->
+          <div class="hero-slide">
+            <div class="hero-glass" role="group" aria-label="Case Studies slide">
+              <div class="hero-slide-grid">
+                <div class="hero-copy">
+                  <h2 class="hero-title">Case Studies</h2>
+                  <p class="hero-sub">Practice with authentic papers — filter by year and subject.</p>
+                  <div class="hero-cta">
+                    <a href="#type=questions" class="btn">Open Case Studies</a>
+                    <a href="#type=important-questions" class="btn ghost">Important</a>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="chip">Year‑wise</div>
+                  <div class="chip">Subject‑wise</div>
+                  <div class="hero-stat"><div class="num">+Prep</div><div class="label">Focus</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Important Questions -->
+          <div class="hero-slide">
+            <div class="hero-glass" role="group" aria-label="Important Questions slide">
+              <div class="hero-slide-grid">
+                <div class="hero-copy">
+                  <h2 class="hero-title">Important Questions</h2>
+                  <p class="hero-sub">Curated must‑know topics and high‑yield questions.</p>
+                  <div class="hero-cta">
+                    <a href="#type=important-questions" class="btn">View Important</a>
+                    <a href="#type=questions" class="btn ghost">All Case Studies</a>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="chip">High‑Yield</div>
+                  <div class="chip">Exam‑Ready</div>
+                  <div class="hero-stat"><div class="num">Top</div><div class="label">Picks</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Directory -->
+          <div class="hero-slide">
+            <div class="hero-glass" role="group" aria-label="Directory slide">
+              <div class="hero-slide-grid">
+                <div class="hero-copy">
+                  <h2 class="hero-title">Directory</h2>
+                  <p class="hero-sub">Find students and profiles; connect with peers and mentors.</p>
+                  <div class="hero-cta">
+                    <a href="#type=directory" class="btn">Open Directory</a>
+                    <a href="#type=resources" class="btn ghost">Resources</a>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="chip">Profiles</div>
+                  <div class="chip">Contacts</div>
+                  <div class="hero-stat"><div class="num">Peer</div><div class="label">Network</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Vacancies -->
+          <div class="hero-slide">
+            <div class="hero-glass" role="group" aria-label="Vacancies slide">
+              <div class="hero-slide-grid">
+                <div class="hero-copy">
+                  <h2 class="hero-title">Vacancies</h2>
+                  <p class="hero-sub">Jobs, internships, and referrals — updated regularly.</p>
+                  <div class="hero-cta">
+                    <a href="#type=vacancies" class="btn">See Vacancies</a>
+                    <a href="#type=career" class="btn ghost">Career</a>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="chip">Internships</div>
+                  <div class="chip">Jobs</div>
+                  <div class="hero-stat"><div class="num">New</div><div class="label">Openings</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Career -->
+          <div class="hero-slide">
+            <div class="hero-glass" role="group" aria-label="Career slide">
+              <div class="hero-slide-grid">
+                <div class="hero-copy">
+                  <h2 class="hero-title">Career</h2>
+                  <p class="hero-sub">Guides, opportunities, and growth paths for Pharm D professionals.</p>
+                  <div class="hero-cta">
+                    <a href="#type=career" class="btn">Explore Career</a>
+                    <a href="#type=vacancies" class="btn ghost">Openings</a>
+                  </div>
+                </div>
+                <div class="hero-side">
+                  <div class="chip">Guides</div>
+                  <div class="chip">Roadmaps</div>
+                  <div class="hero-stat"><div class="num">Next</div><div class="label">Steps</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Assistant -->
           <div class="hero-slide">
             <div class="hero-glass" role="group" aria-label="Assistant slide">
               <div class="hero-slide-grid">
@@ -176,15 +349,24 @@
                 <div class="hero-side">
                   <div class="chip">AI Help</div>
                   <div class="chip">Context Aware</div>
-                  <div class="hero-stat">
-                    <div class="num">3s</div>
-                    <div class="label">Auto‑Rotate</div>
-                  </div>
+                  <div class="hero-stat"><div class="num">4s</div><div class="label">Rotate</div></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
+      </div>
+      <!-- Persistent Assistant pill directly below slideshow -->
+      <div class="assistant-below-hero" style="display:flex;justify-content:center;margin:12px 0 0;">
+        <button id="assistantChatButton" type="button" aria-label="Chat With Us"
+          onclick="openChatCentered()"
+          style="display:inline-flex;align-items:center;gap:10px;padding:10px 26px;border:0;border-radius:18px;font-weight:600;font-size:14px;letter-spacing:.25px;color:#fff;background:linear-gradient(90deg,#3b82f6,#06b6d4);box-shadow:0 6px 18px -4px rgba(0,0,0,.25);cursor:pointer;position:relative;">
+          <span class="assistant-icon" style="width:22px;height:22px;position:relative;display:inline-block;">
+            <span style="position:absolute;top:50%;left:50%;width:11px;height:11px;background:#fff;border-radius:50%;transform:translate(-50%,-50%);"></span>
+            <span style="position:absolute;top:36%;left:70%;width:8px;height:8px;background:#fff;border-radius:50%;"></span>
+          </span>
+          <span>Chat With Us</span>
+        </button>
       </div>
     </div>
   </div>
@@ -210,7 +392,7 @@
     <div class="library-sections">
       <main class="card library-section active" id="home-library">
         <div class="section-header">
-          <h2>Pharm D Navigator</h2>
+          <h2>Pharm D Mates</h2>
           <p class="muted">Recent notes and important resources</p>
         </div>
         <div id="home-content" class="library-content">
@@ -258,15 +440,15 @@
         </div>
       </main>
 
-      <main class="card library-section" id="questions-library" style="display: none;">
+  <main class="card library-section" id="questions-library" style="display: none;">
         <div class="section-header">
-          <h2>Previous Year Questions</h2>
-          <p class="muted">Access previous year exam questions and practice materials</p>
+          <h2>Case Studies</h2>
+          <p class="muted">Explore curated case studies and practice materials</p>
         </div>
-        <div id="questions-content" class="library-content">
+  <div id="questions-content" class="library-content">
           <div class="section-header">
-            <h2>Select Year</h2>
-            <p class="muted">Choose your Pharm D year to view questions</p>
+            <h2>Select System</h2>
+            <p class="muted">Pick a body system to view case studies</p>
           </div>
           <div id="questionsYearGrid" class="grid"></div>
         </div>
@@ -311,20 +493,88 @@
     </div>
 
     <footer>
-  © <span id="year"></span> Pharm D Navigator • Built for students and faculty VertexHub
+  © <span id="year"></span> Pharm D Mates • Built for students and faculty VertexHub
     </footer>
   </div>
 
-  <script src="assets/js/app.fixed.js?v=20251107"></script>
+  <script src="assets/js/app.fixed.js?v=20251109c"></script>
   <script src="assets/js/auth.js?v=20251107"></script>
+  <!-- Pre-stub to block fallback race if main script loads slowly -->
+  <script>
+    // Early stub with queued open support so "Chat With Us" can be clicked before main script loads
+    if(!window.SCOP_CHATBOT){
+      window.SCOP_CHATBOT = {
+        __earlyStub: true,
+        open: function(){ window.__CHATBOT_CENTER_OPEN_PENDING = true; },
+        send: function(msg){ window.__CHATBOT_CENTER_OPEN_PENDING = true; window.__CHATBOT_QUEUED_MESSAGE = msg; },
+        debug: function(){ return { earlyStub: true, queuedOpen: !!window.__CHATBOT_CENTER_OPEN_PENDING }; }
+      };
+    }
+    // Independent centered modal opener (works even if chatbot.js not ready yet)
+    window.openChatCentered = function(){
+      try { console.log('[center-modal] openChatCentered invoked'); } catch(_){ }
+      // If main chatbot provides centered open, use it
+      if (window.SCOP_CHATBOT && typeof SCOP_CHATBOT.open === 'function' && !SCOP_CHATBOT.__earlyStub) {
+        return SCOP_CHATBOT.open();
+      }
+      // Build fallback centered overlay if not present
+      var existing = document.getElementById('assistantModalOverlay');
+      if (!existing){
+        var ov = document.createElement('div');
+        ov.id = 'assistantModalOverlay';
+        ov.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:100000;';
+  var panel = document.createElement('div');
+  panel.id='assistantModalPanel';
+  panel.style.cssText='width:640px;max-width:96vw;max-height:80vh;display:flex;flex-direction:column;background:#0f0f10;color:#e5e7eb;border-radius:20px;box-shadow:0 24px 64px -12px rgba(0,0,0,.55);overflow:hidden;';
+  panel.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,#0b0b0c,#18181b);color:#fff;font-weight:600">Assistant <button type="button" id="assistantClose" style="background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer;line-height:1">×</button></div><div id="assistantBody" style="flex:1;overflow:auto;padding:14px 16px;font-size:14px;color:#e5e7eb"></div><div style="border-top:1px solid #262626;display:flex;background:#0b0b0c"><textarea id="assistantInput" placeholder="Ask me anything..." style="flex:1;border:0;padding:10px;resize:none;height:54px;background:#0b0b0c;color:#e5e7eb"></textarea><button id="assistantSend" style="width:80px;border:0;background:#0ea5e9;color:#fff;font-weight:600">Send</button></div>';
+        ov.appendChild(panel);
+        document.body.appendChild(ov);
+        ov.addEventListener('click', function(e){ if(e.target===ov){ ov.remove(); }});
+        panel.querySelector('#assistantClose').addEventListener('click', function(){ ov.remove(); });
+        panel.querySelector('#assistantSend').addEventListener('click', function(){
+          var val = panel.querySelector('#assistantInput').value.trim();
+          if(!val) return; panel.querySelector('#assistantInput').value='';
+          appendFallbackMessage('user', val);
+          appendFallbackMessage('bot', '...');
+          if(window.SCOP_CHATBOT && typeof SCOP_CHATBOT.send==='function' && !SCOP_CHATBOT.__earlyStub){
+            SCOP_CHATBOT.send(val);
+            // Replace the three-dot bubble with SCOP_CHATBOT response later handled by main script; leave as is.
+          } else {
+            // Direct fetch fallback
+            fetch('api/index.php?action=chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:val})})
+              .then(r=>r.json().catch(()=>({reply:'(raw) '+r.status})))
+              .then(d=>{ replaceLastBot(d.reply||d.error||'(no reply)'); })
+              .catch(err=>{ replaceLastBot('Network error: '+err.message); });
+          }
+        });
+        function appendFallbackMessage(who, text){
+          var body = panel.querySelector('#assistantBody');
+          var row = document.createElement('div');
+          row.style.marginBottom='8px';
+          var bubble = document.createElement('span');
+          bubble.style.cssText='display:inline-block;padding:8px 10px;border-radius:12px;max-width:85%';
+          bubble.textContent=text;
+          if(who==='user'){ row.style.textAlign='right'; bubble.style.background='#0ea5e9'; bubble.style.color='#fff'; }
+          else { bubble.style.background='#1f2937'; bubble.style.color='#e5e7eb'; }
+          row.appendChild(bubble); body.appendChild(row); body.scrollTop=body.scrollHeight;
+        }
+        function replaceLastBot(text){ var body = panel.querySelector('#assistantBody'); var bots=[...body.querySelectorAll('div')].filter(d=>d.style.textAlign!=='right'); if(bots.length){ var last=bots[bots.length-1].querySelector('span'); if(last) last.textContent=text; } }
+      } else {
+        existing.style.display='flex';
+      }
+    };
+  </script>
   <!-- Chatbot primary script (cache-bust with new version) -->
-  <script src="assets/js/chatbot.js?v=20251108" id="chatbotMain"></script>
+  <script src="assets/js/chatbot.js?v=20251109d" id="chatbotMain"></script>
   <!-- Fallback injector: if chatbot script failed or was blocked, build a minimal button -->
   <script>
     (function(){
       const start = Date.now();
       function injectFallback(){
-        if(window.SCOP_CHATBOT){ console.log('[chatbot-fallback] primary loaded; no fallback needed'); return; }
+        // Only skip if main chatbot API is live AND a FAB exists in DOM
+        const apiReady = !!(window.SCOP_CHATBOT && typeof window.SCOP_CHATBOT.open === 'function');
+        const fabExists = !!document.querySelector('.chatbot-fab');
+        if(apiReady && fabExists){ console.log('[chatbot-fallback] primary loaded; no fallback needed'); return; }
         console.warn('[chatbot-fallback] SCOP_CHATBOT missing after', Date.now()-start,'ms; injecting minimal button');
         var btn = document.createElement('button');
         btn.className = 'chatbot-fab';

@@ -155,4 +155,48 @@ class AdminController {
     $stmt->execute([$userId]);
     return ['success' => true];
   }
+
+  // List all student users (approved & pending) with profile info
+  public function listStudents() {
+    $this->ensure_auth();
+    $sql = "SELECT u.id, u.email, u.display_name, u.role, u.is_approved, u.created_at,
+                   sp.course, sp.batch_year
+            FROM users u
+            LEFT JOIN student_profiles sp ON sp.user_id = u.id
+            WHERE u.role = 'student'
+            ORDER BY u.created_at DESC";
+      // Attempt to select course; fallback if column missing (legacy schema)
+      try {
+        $stmt = $this->pdo->query($sql);
+        return $stmt->fetchAll();
+      } catch (Throwable $e) {
+        // Fallback without course column
+        $sql2 = "SELECT u.id, u.email, u.display_name, u.role, u.is_approved, u.created_at,
+                       sp.batch_year
+                FROM users u
+                LEFT JOIN student_profiles sp ON sp.user_id = u.id
+                WHERE u.role = 'student'
+                ORDER BY u.created_at DESC";
+        $stmt2 = $this->pdo->query($sql2);
+        $rows = $stmt2->fetchAll();
+        // Inject null course key for compatibility with frontend
+        return array_map(function($r){ if(!array_key_exists('course',$r)) $r['course'] = null; return $r; }, $rows);
+      }
+  }
+
+  // Generic approval toggle (approve / unapprove)
+  public function setUserApproval($userId, $approved) {
+    $this->ensure_auth();
+    $stmt = $this->pdo->prepare("UPDATE users SET is_approved = ? WHERE id = ? AND role='student'");
+    $stmt->execute([$approved ? 1 : 0, $userId]);
+    return ['success' => true];
+  }
+
+  // Remove a student user entirely (cascade will remove profile/resources if foreign keys defined)
+  public function deleteUser($userId) {
+    $this->ensure_auth();
+    $stmt = $this->pdo->prepare("DELETE FROM users WHERE id = ? AND role='student'");
+    $stmt->execute([$userId]);
+    return ['success' => true];
+  }
 }

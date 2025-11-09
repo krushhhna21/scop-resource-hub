@@ -3,7 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin Dashboard — Pharm D Navigator</title>
+  <title>Admin Dashboard — Pharm D Mates</title>
+  <!-- Favicons -->
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg?v=20251109">
+  <link rel="apple-touch-icon" href="assets/images/logo.jpeg?v=20251109">
+  <link rel="shortcut icon" href="assets/images/logo.jpeg?v=20251109">
   <link rel="stylesheet" href="assets/css/styles.css?v=20251107">
   <link rel="stylesheet" href="assets/css/admin.css?v=20251107">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -32,17 +36,13 @@
           <span class="material-icons">article</span>
           Journals
         </a>
-        <a href="#publications" class="nav-item">
-          <span class="material-icons">description</span>
-          Publications
-        </a>
-        <a href="#pub-approvals" class="nav-item">
-          <span class="material-icons">rule</span>
-          Pub. Approvals
-        </a>
         <a href="#student-approvals" class="nav-item">
           <span class="material-icons">how_to_reg</span>
           Student Approvals
+        </a>
+        <a href="#students" class="nav-item">
+          <span class="material-icons">group</span>
+          Students
         </a>
         <a href="#careers" class="nav-item">
           <span class="material-icons">work</span>
@@ -58,21 +58,13 @@
         </a>
         <a href="#questions" class="nav-item">
           <span class="material-icons">quiz</span>
-          Previous Questions
+          Case Studies
         </a>
         <a href="#resources" class="nav-item">
           <span class="material-icons">folder</span>
           Resources
         </a>
-        <a href="#discussions-admin" class="nav-item">
-          <span class="material-icons">forum</span>
-          Discussions
-        </a>
-        <a href="#pages" class="nav-item">
-          <span class="material-icons">edit_note</span>
-          Pages
-        </a>
-        <a href="index.html" class="nav-item">
+        <a href="index.html" class="nav-item" id="studentViewLink" target="_blank" rel="noopener">
           <span class="material-icons">school</span>
           Student View
         </a>
@@ -196,56 +188,6 @@
           </div>
         </section>
 
-        <!-- Publications Section -->
-        <section class="content-section" id="publications">
-          <div class="section-header">
-            <h2>Publications Management</h2>
-            <button class="btn primary" id="addPublicationBtn">
-              <span class="material-icons">add</span> Add Publication
-            </button>
-          </div>
-          <div class="card">
-            <div class="table-container">
-              <table id="publicationsTable" class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Year</th>
-                    <th>Subject</th>
-                    <th>Type</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- Publications Approvals Section -->
-        <section class="content-section" id="pub-approvals">
-          <div class="section-header">
-            <h2>Publications Approvals</h2>
-            <p class="muted">Approve or remove publications submitted by users</p>
-          </div>
-          <div class="card">
-            <div class="table-container">
-              <table id="pubApprovalsTable" class="admin-table">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>URL</th>
-                    <th>Submitted</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
 
         <!-- Student Approvals Section -->
         <section class="content-section" id="student-approvals">
@@ -261,6 +203,32 @@
                     <th>Name</th>
                     <th>Email</th>
                     <th>Role</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Students Management Section -->
+        <section class="content-section" id="students">
+          <div class="section-header">
+            <h2>Students</h2>
+            <p class="muted">Manage all students: approve/unapprove or remove</p>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="studentsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Course</th>
+                    <th>Batch</th>
+                    <th>Approved</th>
                     <th>Joined</th>
                     <th>Actions</th>
                   </tr>
@@ -325,12 +293,12 @@
           </div>
         </section>
 
-        <!-- Previous Questions Section -->
+        <!-- Case Studies Section -->
         <section class="content-section" id="questions">
           <div class="section-header">
-            <h2>Previous Year Questions</h2>
+            <h2>Case Studies</h2>
             <button class="btn primary" id="addQuestionBtn">
-              <span class="material-icons">add</span> Add Questions
+              <span class="material-icons">add</span> Add Case Study
             </button>
           </div>
           <div class="card">
@@ -338,7 +306,7 @@
               <table id="questionsTable" class="admin-table">
                 <thead>
                   <tr>
-                    <th>Year</th>
+                    <th>System</th>
                     <th>Subject</th>
                     <th>Exam Type</th>
                     <th>Exam Year</th>
@@ -440,106 +408,6 @@
           </div>
         </section>
 
-        <!-- Discussions Admin Section -->
-        <section class="content-section" id="discussions-admin">
-          <div class="section-header">
-            <h2>Discussions</h2>
-          </div>
-          <div class="grid two">
-            <div class="card" style="text-align:left;">
-              <h3>Create Channel</h3>
-              <form id="channelForm">
-                <div class="form-group">
-                  <label for="chanName">Name</label>
-                  <input type="text" id="chanName" name="name" required>
-                </div>
-                <div class="form-group">
-                  <label for="chanVisibility">Visibility</label>
-                  <select id="chanVisibility" name="visibility">
-                    <option value="public">Public</option>
-                    <option value="private">Private</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label for="chanDesc">Description</label>
-                  <textarea id="chanDesc" name="description" rows="3"></textarea>
-                </div>
-                <div class="form-actions">
-                  <button type="submit" class="btn primary">Create Channel</button>
-                </div>
-              </form>
-            </div>
-            <div class="card">
-              <h3>Channels</h3>
-              <div class="table-container">
-                <table id="channelsTable" class="admin-table">
-                  <thead>
-                    <tr>
-                      <th>Name</th>
-                      <th>Visibility</th>
-                      <th>Created</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody></tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-          <div class="card" id="postsCard" style="display:none; text-align:left;">
-            <h3 id="postsHeader">Channel Posts</h3>
-            <div class="table-container">
-              <table id="postsTable" class="admin-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Parent</th>
-                    <th>Author</th>
-                    <th>Content</th>
-                    <th>Created</th>
-                  </tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-            <form id="postForm" style="margin-top:1rem;">
-              <div class="form-group">
-                <label for="postContent">Post a message</label>
-                <textarea id="postContent" rows="3" required></textarea>
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn primary">Send</button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-        <!-- Pages (Simple Content) Section -->
-        <section class="content-section" id="pages">
-          <div class="section-header">
-            <h2>Pages Content</h2>
-            <p class="muted">Manage simple content for public sections like Journals, Publications, and Career</p>
-          </div>
-          <div class="card" style="text-align:left;">
-            <div class="form-group">
-              <label for="pageJournals">Journals Page HTML</label>
-              <textarea id="pageJournals" rows="8" placeholder="Type HTML to show on Journals section"></textarea>
-              <div class="form-actions"><button class="btn primary" id="savePageJournals">Save Journals Page</button></div>
-            </div>
-            <hr />
-            <div class="form-group">
-              <label for="pagePublications">Publications Page HTML</label>
-              <textarea id="pagePublications" rows="8" placeholder="Type HTML to show on Publications section"></textarea>
-              <div class="form-actions"><button class="btn primary" id="savePagePublications">Save Publications Page</button></div>
-            </div>
-            <hr />
-            <div class="form-group">
-              <label for="pageCareer">Career Page HTML</label>
-              <textarea id="pageCareer" rows="8" placeholder="Type HTML to show on Career section"></textarea>
-              <div class="form-actions"><button class="btn primary" id="savePageCareer">Save Career Page</button></div>
-            </div>
-          </div>
-        </section>
       </div>
       </div>
     </main>
@@ -600,12 +468,12 @@
   <div id="questionModal" class="modal">
     <div class="modal-content">
       <div class="modal-header">
-        <h3><span id="questionModalTitle">Add Previous Year Questions</span></h3>
+  <h3><span id="questionModalTitle">Add Case Study</span></h3>
         <span class="modal-close" data-modal="questionModal">&times;</span>
       </div>
       <form id="questionForm">
         <div class="form-group">
-          <label for="questionYear">Year</label>
+          <label for="questionYear">System</label>
           <select id="questionYear" name="year_id" required></select>
         </div>
         <div class="form-group">
@@ -626,15 +494,15 @@
         </div>
         <div class="form-group">
           <label for="questionDescription">Description (Optional)</label>
-          <textarea id="questionDescription" name="description" rows="3" placeholder="Optional description for this question paper..."></textarea>
+          <textarea id="questionDescription" name="description" rows="3" placeholder="Optional description for this case study..."></textarea>
         </div>
         <div class="form-group">
-          <label for="questionFile">Upload Question Paper (PDF)</label>
+          <label for="questionFile">Upload Case Study (PDF)</label>
           <input type="file" id="questionFile" name="file" accept=".pdf" required>
         </div>
         <div class="form-actions">
           <button type="button" class="btn secondary modal-close" data-modal="questionModal">Cancel</button>
-          <button type="submit" class="btn primary">Save Questions</button>
+          <button type="submit" class="btn primary">Save Case Study</button>
         </div>
       </form>
     </div>
@@ -653,14 +521,14 @@
           <input type="text" id="resourceTitle" name="title" required>
         </div>
         <div class="form-group resource-year-field">
-          <label for="resourceYear">Year</label>
+          <label for="resourceYear">Year / System</label>
           <select id="resourceYear" name="year_id"></select>
           <small class="muted">Optional for journals, publications, and career resources</small>
         </div>
         <div class="form-group resource-subject-field">
           <label for="resourceSubject">Subject</label>
           <select id="resourceSubject" name="subject_id"></select>
-          <small class="muted">Optional for journals, publications, career resources, and previous year questions</small>
+          <small class="muted">Optional for journals, publications, career resources, and case studies</small>
         </div>
         <div class="form-group">
           <label for="resourceType">Resource Type</label>
@@ -672,7 +540,7 @@
             <option value="publication">Publication</option>
             <option value="career">Career Resource</option>
             <option value="important-question">Important Question</option>
-            <option value="question">Previous Year Questions</option>
+            <option value="question">Case Study</option>
             <option value="other">Other</option>
           </select>
         </div>
@@ -706,6 +574,6 @@
     </div>
   </div>
 
-  <script src="assets/js/admin.js?v=20251107"></script>
+  <script src="assets/js/admin.js?v=20251109a"></script>
 </body>
 </html>

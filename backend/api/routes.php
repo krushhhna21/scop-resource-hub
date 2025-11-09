@@ -296,6 +296,25 @@ try {
       if (!$uid) json_err('id required');
       json_ok($admin->approveUser($uid));
       break;
+    case 'admin_list_students':
+      $admin = ctrl_admin();
+      json_ok($admin->listStudents());
+      break;
+    case 'admin_set_user_approval':
+      $admin = ctrl_admin();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $uid = intval($payload['id'] ?? 0);
+      $approved = isset($payload['approved']) ? (intval($payload['approved']) === 1) : null;
+      if (!$uid || $approved === null) json_err('id and approved required');
+      json_ok($admin->setUserApproval($uid, $approved));
+      break;
+    case 'admin_delete_user':
+      $admin = ctrl_admin();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $uid = intval($payload['id'] ?? 0);
+      if (!$uid) json_err('id required');
+      json_ok($admin->deleteUser($uid));
+      break;
 
     // Helpers
     case 'list_all_subjects':

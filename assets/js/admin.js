@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     initializeNavigation();
     initializeModals();
     initializeForms();
-    initializePagesEditor();
+    // Pages editor removed from UI
     initializeLogout();
     initializeAdminExtras();
     loadDashboardData();
@@ -61,49 +61,8 @@ function initializeLogout() {
 }
 
 // Simple Pages editor (Journals, Publications, Career)
-function initializePagesEditor() {
-    // Prefill existing content
-    const journalsTA = document.getElementById('pageJournals');
-    const publicationsTA = document.getElementById('pagePublications');
-    const careerTA = document.getElementById('pageCareer');
-    if (journalsTA) {
-        api('get_page_content', { slug: 'journals' }).then(d => { journalsTA.value = d?.html || ''; }).catch(()=>{});
-    }
-    if (publicationsTA) {
-        api('get_page_content', { slug: 'publications' }).then(d => { publicationsTA.value = d?.html || ''; }).catch(()=>{});
-    }
-    if (careerTA) {
-        api('get_page_content', { slug: 'career' }).then(d => { careerTA.value = d?.html || ''; }).catch(()=>{});
-    }
-
-    const saveJ = document.getElementById('savePageJournals');
-    if (saveJ) saveJ.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const html = journalsTA?.value || '';
-        try {
-            const res = await api('admin_set_page_content', { slug: 'journals', html }, 'POST');
-            alert(res?.success ? 'Journals page saved.' : 'Failed to save.');
-        } catch(err) { alert('Failed to save Journals page.'); }
-    });
-    const saveP = document.getElementById('savePagePublications');
-    if (saveP) saveP.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const html = publicationsTA?.value || '';
-        try {
-            const res = await api('admin_set_page_content', { slug: 'publications', html }, 'POST');
-            alert(res?.success ? 'Publications page saved.' : 'Failed to save.');
-        } catch(err) { alert('Failed to save Publications page.'); }
-    });
-    const saveC = document.getElementById('savePageCareer');
-    if (saveC) saveC.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const html = careerTA?.value || '';
-        try {
-            const res = await api('admin_set_page_content', { slug: 'career', html }, 'POST');
-            alert(res?.success ? 'Career page saved.' : 'Failed to save.');
-        } catch(err) { alert('Failed to save Career page.'); }
-    });
-}
+// Pages editor removed — placeholder kept for backward compatibility
+function initializePagesEditor() { /* no-op */ }
 
 // API helper function
 async function api(action, params = {}, method = 'GET', formData = null) {
@@ -171,6 +130,22 @@ function initializeNavigation() {
             const targetSection = document.getElementById(target);
             if (targetSection) {
                 targetSection.classList.add('active');
+                // Lazy refresh data on navigation for dynamic sections
+                try {
+                    if (target === 'students') {
+                        loadStudents();
+                    } else if (target === 'student-approvals') {
+                        loadStudentApprovals();
+                    } else if (target === 'resources') {
+                        loadResources();
+                    } else if (target === 'questions') {
+                        loadQuestions();
+                    } else if (target === 'careers') {
+                        loadCareers();
+                    } else if (target === 'journals') {
+                        loadJournals();
+                    }
+                } catch (_) {}
             }
         });
     });
@@ -230,7 +205,12 @@ function openModal(modalId) {
         // Load year options if needed
         const yearSelect = modal.querySelector('select[name="year_id"]');
         if (yearSelect) {
-            loadYearOptions(yearSelect);
+            // Use systems for Case Study modal; years for others
+            if (modalId === 'questionModal') {
+                loadCaseSystemOptions(yearSelect);
+            } else {
+                loadYearOptions(yearSelect);
+            }
         }
     }
 }
@@ -264,13 +244,23 @@ function openResourceModal(resourceType) {
                 'journal': 'Add New Journal',
                 'publication': 'Add New Publication', 
                 'career': 'Add New Career Resource',
-                'important-question': 'Add New Important Question'
+                'important-question': 'Add New Important Question',
+                'question': 'Add New Case Study'
             };
             titleElement.textContent = titles[resourceType] || 'Add New Resource';
         }
         
         // Handle field visibility based on resource type
         toggleResourceFields(resourceType);
+        // Initialize the Year/System select options accordingly
+        const yearSelect = modal.querySelector('#resourceYear');
+        if (yearSelect) {
+            if (resourceType === 'question') {
+                loadCaseSystemOptions(yearSelect);
+            } else if (!['journal','publication','career'].includes(resourceType)) {
+                loadYearOptions(yearSelect);
+            }
+        }
         
         // Open the modal
         openModal('resourceModal');
@@ -298,12 +288,16 @@ function toggleResourceFields(resourceType) {
         if (yearSelect) yearSelect.removeAttribute('required');
         if (subjectSelect) subjectSelect.removeAttribute('required');
     } else if (yearOnlyTypes.includes(resourceType)) {
-        // Show year field only for questions (PYQ)
+        // Show year field only for case studies (questions)
         if (yearField) yearField.classList.remove('hidden');
         if (subjectField) subjectField.classList.add('hidden');
         
-        // Year required, subject optional
-        if (yearSelect) yearSelect.setAttribute('required', 'required');
+        // Year/System required, subject optional
+        if (yearSelect) {
+            yearSelect.setAttribute('required', 'required');
+            // Populate with systems instead of years
+            loadCaseSystemOptions(yearSelect);
+        }
         if (subjectSelect) subjectSelect.removeAttribute('required');
     } else {
         // Show both fields for specific resources (books, important-questions, etc.)
@@ -311,7 +305,11 @@ function toggleResourceFields(resourceType) {
         if (subjectField) subjectField.classList.remove('hidden');
         
         // Both required
-        if (yearSelect) yearSelect.setAttribute('required', 'required');
+        if (yearSelect) {
+            yearSelect.setAttribute('required', 'required');
+            // For non-general resources (books etc.), load regular year options
+            loadYearOptions(yearSelect);
+        }
         if (subjectSelect) subjectSelect.setAttribute('required', 'required');
     }
 }
@@ -358,7 +356,8 @@ function initializeForms() {
         const yearSelect = questionForm.querySelector('#questionYear');
         
         if (yearSelect) {
-            loadYearOptions(yearSelect);
+                // For case studies, offer system choices mapped to year_id
+                loadCaseSystemOptions(yearSelect);
         }
         
         questionForm.addEventListener('submit', handleQuestionSubmit);
@@ -502,6 +501,44 @@ async function loadYearOptions(selectElement) {
     }
 }
 
+// Load case study system options (maps systems to underlying year_id for compatibility)
+function loadCaseSystemOptions(selectElement) {
+    try {
+        const systems = [
+            { id: 1, name: 'Gastrointestinal system' },
+            { id: 2, name: 'Nervous system' },
+            { id: 3, name: 'Haematological system' },
+            { id: 4, name: 'Infectious disease' },
+            { id: 5, name: 'Renal system' },
+            { id: 6, name: 'Musculoskeletal system' }
+        ];
+        selectElement.innerHTML = '<option value="">Select System</option>';
+        systems.forEach(sys => {
+            const option = document.createElement('option');
+            option.value = sys.id; // mapped numeric id
+            option.textContent = sys.name;
+            selectElement.appendChild(option);
+        });
+    } catch (err) {
+        console.error('Error loading systems:', err);
+        selectElement.innerHTML = '<option value="">Error loading systems</option>';
+    }
+}
+
+// Helper: map year_id (1..6) back to system label for display
+function systemLabelFromYear(yearId) {
+    const id = parseInt(yearId, 10);
+    switch (id) {
+        case 1: return 'Gastrointestinal system';
+        case 2: return 'Nervous system';
+        case 3: return 'Haematological system';
+        case 4: return 'Infectious disease';
+        case 5: return 'Renal system';
+        case 6: return 'Musculoskeletal system';
+        default: return '-';
+    }
+}
+
 // Load subject options
 async function loadSubjectOptions(selectElement, yearId) {
     try {
@@ -585,7 +622,7 @@ async function handleQuestionSubmit(e) {
     try {
         const result = await api('admin_create_resource', {}, 'POST', formData);
         if (result.success) {
-            alert('Previous year questions added successfully!');
+            alert('Case study added successfully!');
             closeModal('questionModal');
             loadQuestions();
         } else {
@@ -593,7 +630,7 @@ async function handleQuestionSubmit(e) {
         }
     } catch (error) {
         console.error('Error adding questions:', error);
-        alert('Failed to add questions. Please try again.');
+            alert('Failed to add case study. Please try again.');
     }
 }
 
@@ -607,7 +644,7 @@ async function loadQuestions() {
             if (questions && questions.length > 0) {
                 tbody.innerHTML = questions.map(q => `
                     <tr>
-                        <td>${q.year_name || '-'}</td>
+                        <td>${systemLabelFromYear(q.year_id)}</td>
                         <td>${q.subject_name || '-'}</td>
                         <td>-</td>
                         <td>-</td>
@@ -617,11 +654,11 @@ async function loadQuestions() {
                     </tr>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No questions found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No case studies found</td></tr>';
             }
         }
     } catch (error) {
-        console.error('Error loading questions:', error);
+    console.error('Error loading case studies:', error);
     }
 }
 
@@ -664,16 +701,15 @@ async function loadDashboardData() {
         
         // Load data for each section
         loadBooks();
-        loadJournals(); // Now using enhanced resource system
-        loadPublications(); // Now using enhanced resource system
+        loadJournals(); // Using enhanced resource system
         loadCareers(); // Now using enhanced resource system
         loadImportantQuestions(); // New important questions system
         loadQuestions();
     loadResources();
-    loadPubApprovals();
     loadStudentApprovals();
+        loadStudents();
     loadVacanciesAdmin();
-    loadChannelsAdmin();
+    // Discussions removed
         
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -878,12 +914,77 @@ async function loadStudentApprovals() {
     }
 }
 
+// Full students listing and management
+async function loadStudents() {
+    const tbody = document.querySelector('#studentsTable tbody');
+    if (!tbody) return;
+    try {
+        const items = await api('admin_list_students');
+        if (items && items.length) {
+            tbody.innerHTML = items.map(u => `
+                <tr>
+                    <td>${escapeHtml(u.display_name || '—')}</td>
+                    <td>${escapeHtml(u.email || '—')}</td>
+                        <td>${escapeHtml((u.course ?? '') || '—')}</td>
+                    <td>${u.batch_year || '—'}</td>
+                    <td>${u.is_approved ? '<span class="badge success">Yes</span>' : '<span class="badge">No</span>'}</td>
+                    <td>${u.created_at || '—'}</td>
+                    <td>
+                        ${u.is_approved ? `
+                          <button class="btn small" onclick="setUserApproval(${u.id}, false)">Unapprove</button>
+                        ` : `
+                          <button class="btn success small" onclick="setUserApproval(${u.id}, true)">Approve</button>
+                        `}
+                        <button class="btn danger small" onclick="deleteUser(${u.id})">Remove</button>
+                    </td>
+                </tr>
+            `).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No students found</td></tr>';
+        }
+    } catch (err) {
+        console.error('Error loading students:', err);
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Failed to load</td></tr>';
+    }
+}
+
+async function setUserApproval(id, approved) {
+    try {
+        const res = await api('admin_set_user_approval', { id, approved: approved ? 1 : 0 }, 'POST');
+        if (res?.success) {
+            loadStudents();
+            loadStudentApprovals();
+        } else {
+            alert(res?.error || 'Failed to update approval');
+        }
+    } catch (err) {
+        alert('Failed to update approval.');
+    }
+}
+
+async function deleteUser(id) {
+    if (!confirm('Remove this student? This action cannot be undone.')) return;
+    try {
+        const res = await api('admin_delete_user', { id }, 'POST');
+        if (res?.success) {
+            loadStudents();
+            loadStudentApprovals();
+        } else {
+            alert(res?.error || 'Failed to remove');
+        }
+    } catch (err) {
+        alert('Failed to remove.');
+    }
+}
+
 async function approveStudent(id) {
     if (!confirm('Approve this student?')) return;
     try {
         const res = await api('admin_approve_user', { id }, 'POST');
         if (res?.success) {
+            // Refresh both tables after approval
             loadStudentApprovals();
+            loadStudents();
         } else {
             alert(res?.error || 'Failed to approve');
         }
@@ -963,7 +1064,7 @@ async function loadQuestions() {
                 tbody.innerHTML = questions.map(q => `
                     <tr>
                         <td>${q.title}</td>
-                        <td>${q.year_name || (q.year_id ? `Year ${q.year_id}` : '-')}</td>
+                        <td>${systemLabelFromYear(q.year_id)}</td>
                         <td>${q.subject_name || 'General'}</td>
                         <td>${q.uploaded_at || '-'}</td>
                         <td>
@@ -972,11 +1073,11 @@ async function loadQuestions() {
                     </tr>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No questions found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="5" class="text-center">No case studies found</td></tr>';
             }
         }
     } catch (error) {
-        console.error('Error loading questions:', error);
+    console.error('Error loading case studies:', error);
     }
 }
 
