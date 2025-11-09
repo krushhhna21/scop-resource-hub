@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-# SCOP Resource Hub
+# Pharm D Navigator
 
 A comprehensive digital resource management system for Pharm D students at Shivlingeshwar College of Pharmacy (SCOP), providing access to books, previous year questions, journals, publications, career resources, and more.
 
@@ -98,7 +97,3 @@ All endpoints are on `backend/api/routes.php?action=...`
 - `POST action=admin_create_resource` — multipart upload
 - `POST action=admin_delete_resource` — body: `resource_id`
 - `GET action=list_all_subjects` — helper for admin upload dropdowns
-
-=======
-# scop-resource-hub
->>>>>>> 6ddca1085e044331d449b95c9a6590c5e2c46b6a
