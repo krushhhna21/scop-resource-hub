@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign In — SCOP Resource Hub</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20251107">
+  <link rel="stylesheet" href="assets/css/login.css?v=20251107">
+  <meta name="description" content="Sign in to access Pharm D resources">
+  <meta name="google-client-id" content="614874768179-jeif5hfmlgs7f67mqct37t42soq7qhdg.apps.googleusercontent.com">
+  <!-- Ensure COOP header is served from root (.htaccess). If popup postMessage warnings persist,
+    verify response headers include: Cross-Origin-Opener-Policy: same-origin-allow-popups -->
+  <meta name="api-base" content="api/index.php">
+  <script>
+    // Force HTTPS in production to satisfy Google Identity origin checks
+    (function(){
+      var host = window.location.hostname;
+      if(host === 'pharmd.xo.je' && window.location.protocol !== 'https:'){
+        try { window.location.href = 'https://' + host + window.location.pathname + window.location.search + window.location.hash; } catch(_) {}
+      }
+    })();
+  </script>
+</head>
+<body class="login-page">
+  <!-- animated background decorations -->
+  <div class="bg-decor">
+    <div class="blob b1"></div>
+    <div class="blob b2"></div>
+    <div class="ring"></div>
+    <div class="noodle n1"></div>
+    <div class="noodle thick n2"></div>
+    <div class="noodle n3"></div>
+    <div class="noodle thick n4"></div>
+  </div>
+
+  <div class="login-shell">
+    <div class="container" style="max-width:720px;margin:0 auto;">
+      <div class="login-card card reveal">
+        <div class="login-header reveal delay-1" style="margin-bottom:1rem;">
+          <img class="brand-mark" src="assets/images/logo.jpeg" alt="SCOP">
+          <div>
+            <h1>SCop Login</h1>
+            <div class="login-sub">Sign in with your college Gmail, then confirm your details</div>
+          </div>
+        </div>
+
+        <div class="grid two" style="gap:1rem;align-items:flex-start;">
+          <div class="reveal delay-1">
+            <label class="label">Full name</label>
+            <input id="nameInput" type="text" class="input" placeholder="Your name">
+          </div>
+          <div class="reveal delay-2">
+            <label class="label">Course</label>
+            <select id="courseInput" class="input">
+              <option value="">Select</option>
+              <option value="Pharm D">Pharm D</option>
+              <option value="B.Pharm">B.Pharm</option>
+              <option value="M.Pharm">M.Pharm</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="grid two" style="gap:1rem;margin-top:.75rem;">
+          <div class="reveal delay-2">
+            <label class="label">Year</label>
+            <select id="yearInput" class="input">
+              <option value="">Select year</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+              <option value="5">5th Year</option>
+              <option value="6">6th Year</option>
+            </select>
+          </div>
+          <div class="reveal delay-3">
+            <label class="label">Email</label>
+            <input id="emailDisplay" type="text" class="input" disabled placeholder="Will fill after Google sign-in">
+          </div>
+        </div>
+
+        <div class="divider reveal" style="margin-top:1rem;"><span>Verify with Google</span></div>
+
+        <div class="reveal" style="display:flex;align-items:center;gap:1rem;margin-top:.25rem;flex-wrap:wrap;">
+          <div id="googleButton"></div>
+          <button id="continueBtn" class="btn primary" disabled>Continue</button>
+          <a href="index.html" class="btn ghost">Back to Home</a>
+        </div>
+
+        <div id="loginMessage" class="muted reveal" style="margin-top:1rem;">First click the Google button, then press Continue.</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/js/login.js?v=20251107"></script>
+</body>
+</html>

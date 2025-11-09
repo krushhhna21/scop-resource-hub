@@ -1,6 +1,6 @@
 <?php
 return [
-  'db_host' => '127.0.0.1:3306',
+  'db_host' => '127.0.0.1',
   'db_name' => 'scop_resource_hub',
   'db_user' => 'root',
   'db_pass' => 'chalwad111',
@@ -20,6 +20,8 @@ return [
     'text/plain'
   ]
   ,
+  // Gemini AI settings
   'gemini_api_key' => '',
-  'gemini_model' => 'gemini-1.5-flash'
+  'gemini_model' => 'gemini-1.5-flash',
+  'google_client_id' => '614874768179-jeif5hfmlgs7f67mqct37t42soq7qhdg.apps.googleusercontent.com'
 ];

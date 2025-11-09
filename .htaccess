@@ -1,0 +1,14 @@
+RewriteEngine On
+# Force HTTPS (Google Identity requires secure origin)
+RewriteCond %{HTTPS} !=on
+RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Basic security headers (optional)
+<IfModule mod_headers.c>
+Header always set X-Content-Type-Options "nosniff"
+Header always set X-Frame-Options "SAMEORIGIN"
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+Header always set X-XSS-Protection "1; mode=block"
+## Allow OAuth popups (Google) to communicate with opener via postMessage
+Header always set Cross-Origin-Opener-Policy "same-origin-allow-popups"
+</IfModule>

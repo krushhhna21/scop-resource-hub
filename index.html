@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta name="google-client-id" content="614874768179-jeif5hfmlgs7f67mqct37t42soq7qhdg.apps.googleusercontent.com">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pharm D Navigator</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20251107">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <meta name="description" content="Shivlingeshwar College of Pharmacy (SCOP) Almala — Pharm D Resource Hub">
+  <meta name="api-base" content="api/index.php">
+  <script>
+    // Force HTTPS in production to satisfy Google Identity origin checks
+    (function(){
+      var host = window.location.hostname;
+      if(host === 'pharmd.xo.je' && window.location.protocol !== 'https:'){
+        try { window.location.href = 'https://' + host + window.location.pathname + window.location.search + window.location.hash; } catch(_) {}
+      }
+    })();
+  </script>
+  <meta name="api-base" content="api/index.php">
+</head>
+<body>
+  <!-- Simplified Auth Prompt: redirect instead of inline Google button -->
+  <div id="authPanel" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);">
+    <div style="max-width:480px;margin:10vh auto;background:#fff;border-radius:18px;box-shadow:0 24px 72px -12px rgba(31,6,43,.35);padding:1.5rem 1.75rem;">
+      <div style="display:flex;align-items:center;gap:1rem;">
+        <img src="assets/images/logo.jpeg" alt="SCOP" style="width:56px;height:56px;border-radius:14px;object-fit:cover;" />
+        <div>
+          <h2 style="margin:0;font-size:1.35rem;letter-spacing:-.5px;">Access Required</h2>
+          <div class="muted" style="font-size:.85rem;">You need to login to view the resources.</div>
+        </div>
+      </div>
+      <div style="margin-top:1.25rem;display:flex;flex-direction:column;gap:.85rem;">
+        <a href="login.html" class="btn primary" style="display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-weight:600;">
+          <span class="material-icons" style="font-size:20px;">login</span>
+          Go to Login Page
+        </a>
+        <p class="muted" style="font-size:.75rem;line-height:1.3;margin:0;">Use your college Gmail on the next page. After first login, an admin must approve your account before full access.</p>
+      </div>
+    </div>
+  </div>
+  <div class="menu-tab" role="navigation">
+    <button class="menu-button" id="menuButton" aria-label="Menu" title="Open menu">
+      <span class="material-icons">more_vert</span>
+    </button>
+    <div class="menu-content" id="menuContent" role="menu">
+      <nav class="menu-grid">
+        <a href="#" class="menu-item" data-library="home" role="menuitem">
+          <span class="material-icons">home</span>
+          Home
+        </a>
+        <a href="#" class="menu-item" data-library="books" role="menuitem">
+          <span class="material-icons">menu_book</span>
+          Books
+        </a>
+        <a href="#" class="menu-item" data-library="journals" role="menuitem">
+          <span class="material-icons">article</span>
+          Journals
+        </a>
+        <a href="#" class="menu-item" data-library="publications" role="menuitem">
+          <span class="material-icons">description</span>
+          Publications
+        </a>
+        <a href="#" class="menu-item" data-library="directory" role="menuitem">
+          <span class="material-icons">people</span>
+          Directory
+        </a>
+        <a href="#" class="menu-item" data-library="vacancies" role="menuitem">
+          <span class="material-icons">work_outline</span>
+          Vacancies
+        </a>
+        <a href="#" class="menu-item" data-library="career" role="menuitem">
+          <span class="material-icons">work</span>
+          Career
+        </a>
+        <a href="#" class="menu-item" data-library="questions" role="menuitem">
+          <span class="material-icons">quiz</span>
+          Previous Year Questions
+        </a>
+        <a href="#" class="menu-item" data-library="important-questions" role="menuitem">
+          <span class="material-icons">priority_high</span>
+          Important Questions
+        </a>
+        <a href="#" class="menu-item" data-library="resources" role="menuitem">
+          <span class="material-icons">folder</span>
+          Resources
+        </a>
+        <a href="#" id="logoutLink" class="menu-item" role="menuitem" style="display:none;">
+          <span class="material-icons">logout</span>
+          Sign Out
+        </a>
+        <a href="admin-login.html" class="menu-item" role="menuitem">
+          <span class="material-icons">admin_panel_settings</span>
+          Admin Portal
+        </a>
+      </nav>
+    </div>
+  </div>
+
+  <div class="hero-section">
+    <div class="container">
+      <header class="header">
+        <div class="brand">
+          <div class="brand-logo" aria-hidden="true">
+            <img src="assets/images/logo.jpeg" alt="SCOP Almala Logo">
+          </div>
+          <div>
+            <h1>Pharm D Navigator</h1>
+            <div class="muted">Shivlingeshwar College of Pharmacy</div>
+          </div>
+        </div>
+          <div class="actions">
+          <!-- Removed Sign In, Admin, Print buttons per request -->
+        </div>
+      </header>
+      
+      <div class="hero-content">
+        <h2>Welcome Pharm D Navigator</h2>
+        <p>Your comprehensive platform for Pharm D educational resources, study materials, and academic excellence.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <section class="features-section">
+      <div class="features-grid">
+        <div class="feature-card">
+          <h3>📚 Comprehensive Resources</h3>
+          <p>Access a wide range of study materials, lecture notes, and reference documents.</p>
+        </div>
+        <div class="feature-card">
+          <h3>🎓 Academic Excellence</h3>
+          <p>Supporting pharmacy education with quality resources and materials.</p>
+        </div>
+        <div class="feature-card">
+          <h3>📱 Easy Access</h3>
+          <p>Access your study materials anytime, anywhere on any device.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="library-sections">
+      <main class="card library-section active" id="home-library">
+        <div class="section-header">
+          <h2>Pharm D Navigator</h2>
+          <p class="muted">Recent notes and important resources</p>
+        </div>
+        <div id="home-content" class="library-content">
+          <!-- Content will be loaded dynamically -->
+        </div>
+      </main>
+
+      <main class="card library-section" id="books-library" style="display: none;">
+        <div class="section-header">
+          <h2>Books Library</h2>
+          <p class="muted">Access recommended textbooks and reference materials</p>
+        </div>
+        <div id="books-content" class="library-content">
+          <div id="booksGrid" class="grid"></div>
+        </div>
+      </main>
+
+      <main class="card library-section" id="journals-library" style="display: none;">
+        <div class="section-header">
+          <h2>Pharmacy Journals</h2>
+          <p class="muted">Access to latest pharmaceutical research and journals</p>
+        </div>
+        <div id="journals-content" class="library-content">
+          <div id="journalsGrid" class="grid"></div>
+        </div>
+      </main>
+
+      <main class="card library-section" id="publications-library" style="display: none;">
+        <div class="section-header">
+          <h2>Publications</h2>
+          <p class="muted">Research papers and academic publications</p>
+        </div>
+        <div id="publications-content" class="library-content">
+          <div id="publicationsGrid" class="grid"></div>
+        </div>
+      </main>
+
+      <main class="card library-section" id="career-library" style="display: none;">
+        <div class="section-header">
+          <h2>Career Opportunities</h2>
+          <p class="muted">Job openings and career development resources</p>
+        </div>
+        <div id="career-content" class="library-content">
+          <div id="careerGrid" class="grid"></div>
+        </div>
+      </main>
+
+      <main class="card library-section" id="questions-library" style="display: none;">
+        <div class="section-header">
+          <h2>Previous Year Questions</h2>
+          <p class="muted">Access previous year exam questions and practice materials</p>
+        </div>
+        <div id="questions-content" class="library-content">
+          <div class="section-header">
+            <h2>Select Year</h2>
+            <p class="muted">Choose your Pharm D year to view questions</p>
+          </div>
+          <div id="questionsYearGrid" class="grid"></div>
+        </div>
+      </main>
+
+      <main class="card library-section" id="important-questions-library" style="display: none;">
+        <div class="section-header">
+          <h2>Important Questions</h2>
+          <p class="muted">Curated important questions for exam preparation</p>
+        </div>
+        <div id="important-questions-content" class="library-content">
+        </div>
+      </main>
+
+      <main class="card library-section" id="resources-library" style="display: none;">
+        <div class="section-header">
+          <h2>General Resources</h2>
+          <p class="muted">Additional study materials and learning resources</p>
+        </div>
+        <div id="resources-content" class="library-content">
+          <div id="resourcesGrid" class="grid"></div>
+        </div>
+      </main>
+
+      <main class="card library-section" id="directory-library" style="display:none;">
+        <div class="section-header">
+          <h2>Directory</h2>
+          <p class="muted">Find students and profiles</p>
+        </div>
+        <div id="directory-content" class="library-content"></div>
+      </main>
+
+      <main class="card library-section" id="vacancies-library" style="display:none;">
+        <div class="section-header">
+          <h2>Vacancies</h2>
+          <p class="muted">Jobs, internships, and referrals</p>
+        </div>
+        <div id="vacancies-content" class="library-content"></div>
+      </main>
+
+      
+    </div>
+
+    <footer>
+      © <span id="year"></span> SCOP Almala • Built for students and faculty VertexHub
+    </footer>
+  </div>
+
+  <script src="assets/js/app.fixed.js?v=20251107"></script>
+  <script src="assets/js/auth.js?v=20251107"></script>
+  <!-- Chatbot primary script (cache-bust with new version) -->
+  <script src="assets/js/chatbot.js?v=20251108" id="chatbotMain"></script>
+  <!-- Fallback injector: if chatbot script failed or was blocked, build a minimal button -->
+  <script>
+    (function(){
+      const start = Date.now();
+      function injectFallback(){
+        if(window.SCOP_CHATBOT){ console.log('[chatbot-fallback] primary loaded; no fallback needed'); return; }
+        console.warn('[chatbot-fallback] SCOP_CHATBOT missing after', Date.now()-start,'ms; injecting minimal button');
+        var btn = document.createElement('button');
+        btn.className = 'chatbot-fab';
+        btn.innerHTML = '<svg viewBox="0 0 64 64" class="chatbot-bot" aria-hidden="true" focusable="false"><g class="bot"><rect x="12" y="20" width="40" height="28" rx="8" fill="currentColor"/><circle cx="26" cy="34" r="5" class="eye eye-left" fill="#0a2540"/><circle cx="38" cy="34" r="5" class="eye eye-right" fill="#0a2540"/><rect x="24" y="38" width="16" height="4" rx="2" class="mouth" fill="#ffffff"/><rect x="30" y="10" width="4" height="10" rx="2" fill="currentColor"/><circle cx="32" cy="8" r="4" class="antenna" fill="currentColor"/></g></svg>';
+        btn.onclick = function(){
+          var panel = document.getElementById('chatbotFallbackPanel');
+          if(!panel){
+            panel = document.createElement('div');
+            panel.id = 'chatbotFallbackPanel';
+            panel.className = 'chatbot-panel';
+            panel.innerHTML = '<div class="chatbot-header">Assistant</div><div class="chatbot-body" id="fbChatBody"></div><form class="chatbot-input" id="fbChatForm"><textarea id="fbChatInput" placeholder="Ask..."></textarea><button type="submit">Send</button></form>';
+            document.body.appendChild(panel);
+            panel.querySelector('#fbChatForm').addEventListener('submit', async function(e){
+              e.preventDefault();
+              const val = panel.querySelector('#fbChatInput').value.trim(); if(!val) return;
+              const body = panel.querySelector('#fbChatBody');
+              body.innerHTML += '<div style="text-align:right;margin-bottom:6px"><span style="display:inline-block;background:#a855f7;color:#fff;padding:6px 8px;border-radius:12px">'+val.replace(/</g,'&lt;')+'</span></div>';
+              panel.querySelector('#fbChatInput').value='';
+              body.innerHTML += '<div style="margin-bottom:6px"><span style="display:inline-block;background:#f1f5f9;color:#0f172a;padding:6px 8px;border-radius:12px">...</span></div>';
+              body.scrollTop = body.scrollHeight;
+              try { btn.classList.add('speaking'); } catch(_) {}
+              try {
+                const resp = await fetch('api/index.php?action=chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:val})});
+                let txt; try { const j = await resp.json(); txt = j.reply || j.error || JSON.stringify(j); } catch(_){ txt = await resp.text(); }
+                body.lastElementChild.querySelector('span').textContent = txt.slice(0,800);
+                body.scrollTop = body.scrollHeight;
+              } catch(err){ body.lastElementChild.querySelector('span').textContent = 'Network error: '+err.message; }
+              finally { try { btn.classList.remove('speaking'); } catch(_) {} }
+            });
+          } else {
+            panel.style.display = panel.style.display==='none' ? 'flex' : 'none';
+          }
+        };
+        document.body.appendChild(btn);
+        // Pop cloud tip near fallback button
+        var tip = document.createElement('div');
+        tip.textContent = 'Hey! Your assistant is here — can I help?';
+        tip.style.cssText = 'position:fixed;right:100px;bottom:30px;background:#fff;border:1px solid rgba(0,0,0,.06);border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.12);padding:.55rem .75rem;font-size:.82rem;z-index:100003;transform-origin:bottom right;opacity:0;';
+        document.body.appendChild(tip);
+        requestAnimationFrame(function(){ tip.style.transition='opacity .35s ease, transform .35s ease'; tip.style.opacity='1'; tip.style.transform='translateY(0)'; });
+        setTimeout(function(){ tip.style.opacity='0'; tip.style.transform='translateY(-6px)'; setTimeout(function(){ if(tip.parentNode) tip.parentNode.removeChild(tip); }, 400); }, 3600);
+      }
+      // Attempt fallback after delays
+      setTimeout(injectFallback, 1800);
+      setTimeout(injectFallback, 4000);
+    })();
+  </script>
+</body>
+</html>

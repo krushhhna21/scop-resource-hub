@@ -1,5 +1,5 @@
 <?php
-// seed_admin.php - one-time setup to create an admin user
+// seed_admin.php - one-time setup to create an admin user (deploy package copy)
 // Delete this file after creating your first admin.
 header('Content-Type: text/html; charset=utf-8');
 require __DIR__ . '/backend/api/db.php';
@@ -12,9 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   } else {
     $hash = password_hash($password, PASSWORD_BCRYPT);
     try {
-      $stmt = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?)");
-      $stmt->execute([$username, $hash]);
-      echo "<p>Admin user <strong>".htmlspecialchars($username)."</strong> created. You can now <a href='public/admin-login.html'>login here</a>.</p>";
+      // Ensure columns exist even on minimal schema (role/is_approved may not exist)
+      $cols = $pdo->query("SHOW COLUMNS FROM users")->fetchAll(PDO::FETCH_COLUMN, 0);
+      $hasRole = in_array('role', $cols, true);
+      $hasApproved = in_array('is_approved', $cols, true);
+      if ($hasRole && $hasApproved) {
+        $stmt = $pdo->prepare("INSERT INTO users (username, password_hash, role, is_approved) VALUES (?, ?, 'admin', 1) ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash), role='admin', is_approved=1");
+        $stmt->execute([$username, $hash]);
+      } else {
+        // Fallback for legacy schema without role/is_approved
+        $stmt = $pdo->prepare("INSERT INTO users (username, password_hash) VALUES (?, ?) ON DUPLICATE KEY UPDATE password_hash=VALUES(password_hash)");
+        $stmt->execute([$username, $hash]);
+      }
+      echo "<p>Admin user <strong>".htmlspecialchars($username)."</strong> created/updated. You can now <a href='admin-login.html'>login here</a>. Delete this file immediately.</p>";
       exit;
     } catch (Exception $e) {
       echo "<p>Error: " . htmlspecialchars($e->getMessage()) . "</p>";
@@ -37,7 +47,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </style>
 </head>
 <body>
-  <h1>Seed Admin</h1>
+  <h1>Seed Admin (Deploy)</h1>
   <p>Create the first admin account. <strong>Delete this file after use.</strong></p>
   <form method="post">
     <label>Username</label>

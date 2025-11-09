@@ -1,34 +1,41 @@
 <?php
-// Test database connection
+// test_db.php - environment-aware DB connectivity tester for deploy package.
+// Uses the same selection logic as db.php by including it, then runs diagnostic queries.
+header('Content-Type: text/plain; charset=utf-8');
+echo "=== DB Connectivity Test (deploy_package) ===\n";
+
 try {
-    $config = include 'config.local.php';
-    $dsn = "mysql:host={$config['db_host']};dbname={$config['db_name']};charset=utf8mb4";
-    $pdo = new PDO($dsn, $config['db_user'], $config['db_pass'], [
-        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
-    ]);
-    
-    echo "✅ Database connection successful!\n";
-    
-    // Test a simple query
-    $stmt = $pdo->query("SHOW TABLES");
-    $tables = $stmt->fetchAll();
-    
-    echo "📋 Tables found:\n";
-    foreach ($tables as $table) {
-        echo "  - " . $table[array_keys($table)[0]] . "\n";
+    require __DIR__ . '/db.php'; // provides $pdo, $config and local $configPath variable from included scope
+    $configFile = isset($configPath) ? basename($configPath) : 'unknown';
+    echo "Config file: $configFile\n";
+    echo "Host: {$config['db_host']}\n";
+    echo "Database: {$config['db_name']}\n";
+    echo "User: {$config['db_user']}\n";
+
+    // Basic connection check (already succeeded if we're here)
+    echo "Status: ✅ Connected\n";
+
+    // Show tables (may fail if permissions limited)
+    try {
+        $tables = $pdo->query('SHOW TABLES')->fetchAll(PDO::FETCH_NUM);
+        echo "Tables (" . count($tables) . "):\n";
+        foreach ($tables as $t) echo "  - {$t[0]}\n";
+    } catch (Throwable $e) {
+        echo "SHOW TABLES error: " . $e->getMessage() . "\n";
     }
-    
-    // Test user authentication
-    $stmt = $pdo->query("SELECT COUNT(*) as count FROM users");
-    $userCount = $stmt->fetch()['count'];
-    echo "👥 Users in database: $userCount\n";
-    
-} catch (Exception $e) {
-    echo "❌ Database connection failed: " . $e->getMessage() . "\n";
-    echo "🔍 Error details:\n";
-    echo "  - Host: " . ($config['db_host'] ?? 'not set') . "\n";
-    echo "  - Database: " . ($config['db_name'] ?? 'not set') . "\n";
-    echo "  - User: " . ($config['db_user'] ?? 'not set') . "\n";
+
+    // Users count (optional)
+    try {
+        $count = $pdo->query('SELECT COUNT(*) FROM users')->fetchColumn();
+        echo "Users table count: $count\n";
+    } catch (Throwable $e) {
+        echo "Users count query error: " . $e->getMessage() . "\n";
+    }
+} catch (Throwable $e) {
+    echo "Status: ❌ Connection failed\n";
+    echo "Error: " . $e->getMessage() . "\n";
 }
+
+echo "Server: " . ($_SERVER['HTTP_HOST'] ?? 'cli') . "\n";
+echo "HTTPS: " . ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'yes' : 'no') . "\n";
 ?>

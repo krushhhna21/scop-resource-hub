@@ -30,7 +30,10 @@ class AdminController {
   }
 
   private function ensure_auth() {
-    if (!isset($_SESSION['admin_user'])) {
+    // Allow legacy admin session OR Google-based session with role=admin
+    $hasLegacy = isset($_SESSION['admin_user']);
+    $hasGoogleAdmin = isset($_SESSION['user']) && isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin';
+    if (!($hasLegacy || $hasGoogleAdmin)) {
       throw new Exception('Unauthorized.');
     }
   }
@@ -136,6 +139,20 @@ class AdminController {
     // Upsert
     $stmt = $this->pdo->prepare("INSERT INTO pages (slug, html) VALUES (?, ?) ON DUPLICATE KEY UPDATE html = VALUES(html), updated_at = CURRENT_TIMESTAMP");
     $stmt->execute([$slug, $html]);
+    return ['success' => true];
+  }
+
+  // Students approval
+  public function listPendingUsers() {
+    $this->ensure_auth();
+    $stmt = $this->pdo->query("SELECT id, email, display_name, role, is_approved, created_at FROM users WHERE role = 'student' AND (is_approved IS NULL OR is_approved = 0) ORDER BY created_at DESC");
+    return $stmt->fetchAll();
+  }
+
+  public function approveUser($userId) {
+    $this->ensure_auth();
+    $stmt = $this->pdo->prepare("UPDATE users SET is_approved = 1 WHERE id = ?");
+    $stmt->execute([$userId]);
     return ['success' => true];
   }
 }

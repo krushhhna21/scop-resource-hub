@@ -1,0 +1,711 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Admin Dashboard — SCOP Resource Hub</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20251107">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20251107">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-dashboard">
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-logo" aria-hidden="true"></div>
+        <div>
+          <h1>SCOP Admin</h1>
+          <div class="muted">Resource Hub Management</div>
+        </div>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="#dashboard" class="nav-item active">
+          <span class="material-icons">dashboard</span>
+          Dashboard
+        </a>
+        <a href="#books" class="nav-item">
+          <span class="material-icons">menu_book</span>
+          Books
+        </a>
+        <a href="#journals" class="nav-item">
+          <span class="material-icons">article</span>
+          Journals
+        </a>
+        <a href="#publications" class="nav-item">
+          <span class="material-icons">description</span>
+          Publications
+        </a>
+        <a href="#pub-approvals" class="nav-item">
+          <span class="material-icons">rule</span>
+          Pub. Approvals
+        </a>
+        <a href="#student-approvals" class="nav-item">
+          <span class="material-icons">how_to_reg</span>
+          Student Approvals
+        </a>
+        <a href="#careers" class="nav-item">
+          <span class="material-icons">work</span>
+          Career
+        </a>
+        <a href="#vacancies-admin" class="nav-item">
+          <span class="material-icons">badge</span>
+          Vacancies
+        </a>
+        <a href="#important-questions" class="nav-item">
+          <span class="material-icons">priority_high</span>
+          Important Questions
+        </a>
+        <a href="#questions" class="nav-item">
+          <span class="material-icons">quiz</span>
+          Previous Questions
+        </a>
+        <a href="#resources" class="nav-item">
+          <span class="material-icons">folder</span>
+          Resources
+        </a>
+        <a href="#discussions-admin" class="nav-item">
+          <span class="material-icons">forum</span>
+          Discussions
+        </a>
+        <a href="#pages" class="nav-item">
+          <span class="material-icons">edit_note</span>
+          Pages
+        </a>
+        <a href="index.html" class="nav-item">
+          <span class="material-icons">school</span>
+          Student View
+        </a>
+      </nav>
+      <div class="sidebar-footer">
+        <button class="btn ghost" id="logoutBtn">
+          <span class="material-icons">logout</span>
+          Logout
+        </button>
+      </div>
+    </aside>
+
+    <main class="dashboard-main">
+      <header class="dashboard-header">
+        <div class="quick-stats">
+          <div class="stat-card">
+            <span class="material-icons">description</span>
+            <div class="stat-content">
+              <div class="stat-value" id="totalResources">--</div>
+              <div class="stat-label">Total Resources</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="material-icons">visibility</span>
+            <div class="stat-content">
+              <div class="stat-value" id="totalViews">--</div>
+              <div class="stat-label">Total Views</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <span class="material-icons">today</span>
+            <div class="stat-content">
+              <div class="stat-value" id="todayUploads">--</div>
+              <div class="stat-label">Today's Uploads</div>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="dashboard-content">
+        <!-- Dashboard Overview -->
+        <section class="content-section active" id="dashboard">
+          <div class="section-header">
+            <h2>Dashboard Overview</h2>
+            <p class="muted">Summary of all resources and activities</p>
+          </div>
+          <div class="dashboard-grid">
+            <div class="stat-card">
+              <span class="material-icons">menu_book</span>
+              <h3>Books</h3>
+              <p id="totalBooks">Loading...</p>
+            </div>
+            <div class="stat-card">
+              <span class="material-icons">article</span>
+              <h3>Journals</h3>
+              <p id="totalJournals">Loading...</p>
+            </div>
+            <div class="stat-card">
+              <span class="material-icons">description</span>
+              <h3>Publications</h3>
+              <p id="totalPublications">Loading...</p>
+            </div>
+            <div class="stat-card">
+              <span class="material-icons">work</span>
+              <h3>Active Jobs</h3>
+              <p id="activeJobs">Loading...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Books Section -->
+        <section class="content-section" id="books">
+          <div class="section-header">
+            <h2>Books Management</h2>
+            <button class="btn primary" id="addBookBtn">
+              <span class="material-icons">add</span> Add Book
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="booksTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Journals Section -->
+        <section class="content-section" id="journals">
+          <div class="section-header">
+            <h2>Journals Management</h2>
+            <button class="btn primary" id="addJournalBtn">
+              <span class="material-icons">add</span> Add Journal
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="journalsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Publications Section -->
+        <section class="content-section" id="publications">
+          <div class="section-header">
+            <h2>Publications Management</h2>
+            <button class="btn primary" id="addPublicationBtn">
+              <span class="material-icons">add</span> Add Publication
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="publicationsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Publications Approvals Section -->
+        <section class="content-section" id="pub-approvals">
+          <div class="section-header">
+            <h2>Publications Approvals</h2>
+            <p class="muted">Approve or remove publications submitted by users</p>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="pubApprovalsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>URL</th>
+                    <th>Submitted</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Student Approvals Section -->
+        <section class="content-section" id="student-approvals">
+          <div class="section-header">
+            <h2>Student Approvals</h2>
+            <p class="muted">Approve newly registered students</p>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="studentApprovalsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Career Section -->
+        <section class="content-section" id="careers">
+          <div class="section-header">
+            <h2>Career Resources Management</h2>
+            <button class="btn primary" id="addCareerBtn">
+              <span class="material-icons">add</span> Add Career Resource
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="careersTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Important Questions Section -->
+        <section class="content-section" id="important-questions">
+          <div class="section-header">
+            <h2>Important Questions Management</h2>
+            <button class="btn primary" id="addImportantQuestionBtn">
+              <span class="material-icons">add</span> Add Important Question
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="importantQuestionsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Previous Questions Section -->
+        <section class="content-section" id="questions">
+          <div class="section-header">
+            <h2>Previous Year Questions</h2>
+            <button class="btn primary" id="addQuestionBtn">
+              <span class="material-icons">add</span> Add Questions
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="questionsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Year</th>
+                    <th>Subject</th>
+                    <th>Exam Type</th>
+                    <th>Exam Year</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Resources Section -->
+        <section class="content-section" id="resources">
+          <div class="section-header">
+            <h2>Resource Management</h2>
+            <button class="btn primary" id="addResourceBtn">
+              <span class="material-icons">add</span> Add Resource
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="resourcesTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Subject</th>
+                    <th>Added Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Vacancies Admin Section -->
+        <section class="content-section" id="vacancies-admin">
+          <div class="section-header">
+            <h2>Vacancies Management</h2>
+          </div>
+          <div class="grid two">
+            <div class="card" style="text-align:left;">
+              <h3>Create Vacancy</h3>
+              <form id="vacancyForm">
+                <div class="form-group">
+                  <label for="vacTitle">Title</label>
+                  <input type="text" id="vacTitle" name="title" required>
+                </div>
+                <div class="form-group">
+                  <label for="vacCompany">Company</label>
+                  <input type="text" id="vacCompany" name="company">
+                </div>
+                <div class="form-group">
+                  <label for="vacLocation">Location</label>
+                  <input type="text" id="vacLocation" name="location">
+                </div>
+                <div class="form-group">
+                  <label for="vacCategory">Category</label>
+                  <input type="text" id="vacCategory" name="category" placeholder="e.g., Internship, Full-time">
+                </div>
+                <div class="form-group">
+                  <label for="vacDesc">Description</label>
+                  <textarea id="vacDesc" name="description" rows="4"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="vacLink">Application Link</label>
+                  <input type="url" id="vacLink" name="application_link" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                  <label for="vacBatch">Batch Filter (Year)</label>
+                  <input type="number" id="vacBatch" name="batch_filter" min="1" max="6" placeholder="Optional">
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn primary">Create Vacancy</button>
+                </div>
+              </form>
+            </div>
+            <div class="card">
+              <h3>Existing Vacancies</h3>
+              <div class="table-container">
+                <table id="vacanciesTable" class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Company</th>
+                      <th>Location</th>
+                      <th>Category</th>
+                      <th>Batch</th>
+                      <th>Link</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Discussions Admin Section -->
+        <section class="content-section" id="discussions-admin">
+          <div class="section-header">
+            <h2>Discussions</h2>
+          </div>
+          <div class="grid two">
+            <div class="card" style="text-align:left;">
+              <h3>Create Channel</h3>
+              <form id="channelForm">
+                <div class="form-group">
+                  <label for="chanName">Name</label>
+                  <input type="text" id="chanName" name="name" required>
+                </div>
+                <div class="form-group">
+                  <label for="chanVisibility">Visibility</label>
+                  <select id="chanVisibility" name="visibility">
+                    <option value="public">Public</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="chanDesc">Description</label>
+                  <textarea id="chanDesc" name="description" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn primary">Create Channel</button>
+                </div>
+              </form>
+            </div>
+            <div class="card">
+              <h3>Channels</h3>
+              <div class="table-container">
+                <table id="channelsTable" class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Visibility</th>
+                      <th>Created</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="card" id="postsCard" style="display:none; text-align:left;">
+            <h3 id="postsHeader">Channel Posts</h3>
+            <div class="table-container">
+              <table id="postsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Parent</th>
+                    <th>Author</th>
+                    <th>Content</th>
+                    <th>Created</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+            <form id="postForm" style="margin-top:1rem;">
+              <div class="form-group">
+                <label for="postContent">Post a message</label>
+                <textarea id="postContent" rows="3" required></textarea>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn primary">Send</button>
+              </div>
+            </form>
+          </div>
+        </section>
+
+        <!-- Pages (Simple Content) Section -->
+        <section class="content-section" id="pages">
+          <div class="section-header">
+            <h2>Pages Content</h2>
+            <p class="muted">Manage simple content for public sections like Journals, Publications, and Career</p>
+          </div>
+          <div class="card" style="text-align:left;">
+            <div class="form-group">
+              <label for="pageJournals">Journals Page HTML</label>
+              <textarea id="pageJournals" rows="8" placeholder="Type HTML to show on Journals section"></textarea>
+              <div class="form-actions"><button class="btn primary" id="savePageJournals">Save Journals Page</button></div>
+            </div>
+            <hr />
+            <div class="form-group">
+              <label for="pagePublications">Publications Page HTML</label>
+              <textarea id="pagePublications" rows="8" placeholder="Type HTML to show on Publications section"></textarea>
+              <div class="form-actions"><button class="btn primary" id="savePagePublications">Save Publications Page</button></div>
+            </div>
+            <hr />
+            <div class="form-group">
+              <label for="pageCareer">Career Page HTML</label>
+              <textarea id="pageCareer" rows="8" placeholder="Type HTML to show on Career section"></textarea>
+              <div class="form-actions"><button class="btn primary" id="savePageCareer">Save Career Page</button></div>
+            </div>
+          </div>
+        </section>
+      </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Modals -->
+  <!-- Book Modal -->
+  <div id="bookModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><span id="bookModalTitle">Add New Book</span></h3>
+        <span class="modal-close" data-modal="bookModal">&times;</span>
+      </div>
+      <form id="bookForm">
+        <div class="form-group">
+          <label for="bookTitle">Title</label>
+          <input type="text" id="bookTitle" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="bookAuthor">Author</label>
+          <input type="text" id="bookAuthor" name="author" required>
+        </div>
+        <div class="form-group">
+          <label for="bookYear">Year</label>
+          <select id="bookYear" name="year_id" required></select>
+        </div>
+        <div class="form-group">
+          <label for="bookSubject">Subject</label>
+          <select id="bookSubject" name="subject_id" required></select>
+        </div>
+        <div class="form-group">
+          <label for="bookDescription">Description</label>
+          <textarea id="bookDescription" name="description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="bookFile">Upload Book (PDF)</label>
+          <input type="file" id="bookFile" name="file" accept=".pdf">
+        </div>
+        <div class="form-group">
+          <label for="bookLink">Or External URL</label>
+          <input type="url" id="bookLink" name="external_url" placeholder="https://example.com/book">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn secondary modal-close" data-modal="bookModal">Cancel</button>
+          <button type="submit" class="btn primary">Save Book</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Journal Modal removed: Journals managed via Pages editor -->
+
+  <!-- Publication Modal removed: Publications managed via Pages editor -->
+
+  <!-- Career Modal removed: Career managed via Pages editor -->
+
+  <!-- Question Modal -->
+  <div id="questionModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><span id="questionModalTitle">Add Previous Year Questions</span></h3>
+        <span class="modal-close" data-modal="questionModal">&times;</span>
+      </div>
+      <form id="questionForm">
+        <div class="form-group">
+          <label for="questionYear">Year</label>
+          <select id="questionYear" name="year_id" required></select>
+        </div>
+        <div class="form-group">
+          <label for="examYear">Exam Year</label>
+          <input type="number" id="examYear" name="exam_year" required min="2000" max="2099">
+        </div>
+        <div class="form-group">
+          <label for="examType">Exam Type</label>
+          <select id="examType" name="exam_type" required>
+            <option value="internal">Internal</option>
+            <option value="external">External</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="questionTitle">Title</label>
+          <input type="text" id="questionTitle" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="questionDescription">Description (Optional)</label>
+          <textarea id="questionDescription" name="description" rows="3" placeholder="Optional description for this question paper..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="questionFile">Upload Question Paper (PDF)</label>
+          <input type="file" id="questionFile" name="file" accept=".pdf" required>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn secondary modal-close" data-modal="questionModal">Cancel</button>
+          <button type="submit" class="btn primary">Save Questions</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Resource Modal -->
+  <div id="resourceModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><span id="resourceModalTitle">Add New Resource</span></h3>
+        <span class="modal-close" data-modal="resourceModal">&times;</span>
+      </div>
+      <form id="resourceForm">
+        <div class="form-group">
+          <label for="resourceTitle">Title</label>
+          <input type="text" id="resourceTitle" name="title" required>
+        </div>
+        <div class="form-group resource-year-field">
+          <label for="resourceYear">Year</label>
+          <select id="resourceYear" name="year_id"></select>
+          <small class="muted">Optional for journals, publications, and career resources</small>
+        </div>
+        <div class="form-group resource-subject-field">
+          <label for="resourceSubject">Subject</label>
+          <select id="resourceSubject" name="subject_id"></select>
+          <small class="muted">Optional for journals, publications, career resources, and previous year questions</small>
+        </div>
+        <div class="form-group">
+          <label for="resourceType">Resource Type</label>
+          <select id="resourceType" name="resource_type" required>
+            <option value="">Select Type</option>
+            <option value="resource">General Resource</option>
+            <option value="book">Book</option>
+            <option value="journal">Journal</option>
+            <option value="publication">Publication</option>
+            <option value="career">Career Resource</option>
+            <option value="important-question">Important Question</option>
+            <option value="question">Previous Year Questions</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="resourceDescription">Description</label>
+          <textarea id="resourceDescription" name="description" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="resourceThumbnail">Thumbnail Image</label>
+          <input type="file" id="resourceThumbnail" name="thumbnail" accept="image/*">
+          <small class="muted">Optional: Upload an image to display on the resource card</small>
+        </div>
+        <div class="form-group">
+          <label for="resourceCardColor">Card Color</label>
+          <input type="color" id="resourceCardColor" name="card_color" value="#0ea5e9">
+          <small class="muted">Choose a color theme for this resource card</small>
+        </div>
+        <div class="form-group">
+          <label for="resourceFile">Upload File</label>
+          <input type="file" id="resourceFile" name="file">
+        </div>
+        <div class="form-group">
+          <label for="resourceURL">Or External URL</label>
+          <input type="url" id="resourceURL" name="external_url" placeholder="https://example.com/resource">
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn secondary modal-close" data-modal="resourceModal">Cancel</button>
+          <button type="submit" class="btn primary">Save Resource</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="assets/js/admin.js?v=20251107"></script>
+</body>
+</html>
