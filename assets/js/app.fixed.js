@@ -280,6 +280,48 @@ document.addEventListener('DOMContentLoaded', () => {
     onScroll();
   })();
 
+  // Hero slideshow rotation (every 3s) with glass shine tracking
+  (function initHeroSlideshow(){
+    const slides = Array.from(document.querySelectorAll('.hero-slideshow .hero-slide'));
+    if (slides.length <= 1) return;
+    let i = 0; let prev = 0; let timer;
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function activate(idx){
+      // mark previous as leaving for graceful out animation
+      slides.forEach((s)=> s.classList.remove('leaving'));
+      slides.forEach((s,j)=>{
+        if (j === prev && j !== idx) {
+          s.classList.remove('active');
+          // trigger leaving animation
+          s.classList.add('leaving');
+          // cleanup after transition
+          setTimeout(()=>{ s.classList.remove('leaving'); }, 900);
+        }
+      });
+      slides.forEach((s,j)=>{ s.classList.toggle('active', j===idx); });
+      prev = idx;
+    }
+    function next(){ i = (i+1) % slides.length; activate(i); }
+    function start(){ if (prefersReduced) return; timer = setInterval(next, 3000); }
+    function stop(){ if (timer){ clearInterval(timer); timer=null; } }
+    // Pause on interaction
+    const root = document.querySelector('.hero-slideshow');
+    if (root){ root.addEventListener('mouseenter', stop); root.addEventListener('mouseleave', start); root.addEventListener('touchstart', stop, {passive:true}); root.addEventListener('touchend', start, {passive:true}); }
+    // Shine effect based on cursor position
+    function onMove(e){
+      const glass = e.target.closest('.hero-glass');
+      if(!glass) return;
+      const r = glass.getBoundingClientRect();
+      const x = ((e.clientX - r.left) / r.width)*100;
+      const y = ((e.clientY - r.top) / r.height)*100;
+      glass.style.setProperty('--shine-x', x+'%');
+      glass.style.setProperty('--shine-y', y+'%');
+    }
+    document.addEventListener('mousemove', onMove);
+    activate(i); start();
+    document.addEventListener('visibilitychange', ()=>{ if(document.hidden) stop(); else start(); });
+  })();
+
   // Show sections
   function showLibrary(type) {
     // Hide all sections
