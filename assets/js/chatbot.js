@@ -73,9 +73,9 @@
   panel.className = 'chatbot-panel';
   panel.style.display = 'none';
   panel.setAttribute('role','dialog');
-  panel.setAttribute('aria-label','SCOP Assistant');
+  panel.setAttribute('aria-label','Assistant');
   panel.innerHTML = `
-    <div class="chatbot-header">SCOP Assistant</div>
+  <div class="chatbot-header">Assistant</div>
     <div class="chatbot-body" id="chatbotBody"></div>
     <div class="chatbot-input">
       <textarea id="chatbotInput" placeholder="Ask me anything..." ></textarea>

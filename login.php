@@ -8,7 +8,7 @@ header('Cross-Origin-Embedder-Policy: unsafe-none');
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Sign In — SCOP Resource Hub</title>
+  <title>Sign In — Pharm D Navigator</title>
   <link rel="stylesheet" href="assets/css/styles.css">
   <link rel="stylesheet" href="assets/css/login.css">
   <meta name="description" content="Sign in to access Pharm D resources">
@@ -42,9 +42,9 @@ header('Cross-Origin-Embedder-Policy: unsafe-none');
     <div class="container" style="max-width:720px;margin:0 auto;">
       <div class="login-card card reveal">
         <div class="login-header reveal delay-1" style="margin-bottom:1rem;">
-          <img class="brand-mark" src="assets/images/logo.jpeg" alt="SCOP">
+          <img class="brand-mark" src="assets/images/logo.jpeg" alt="Logo">
           <div>
-            <h1>SCop Login</h1>
+            <h1>Login</h1>
             <div class="login-sub">Sign in with your college Gmail, then confirm your details</div>
           </div>
         </div>
