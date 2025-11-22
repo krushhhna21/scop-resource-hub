@@ -75,6 +75,29 @@ document.addEventListener('DOMContentLoaded', () => {
     yearSpan.textContent = new Date().getFullYear();
   }
 
+  // UI label mapping: map internal slugs to user-facing labels
+  function uiLabel(type) {
+    const map = {
+      journals: 'Article Publication',
+      publications: 'Research Publications'
+    };
+    return map[type] || (type ? type.charAt(0).toUpperCase() + type.slice(1) : '');
+  }
+
+  // Fetch an admin-managed PYQ link for a specific year (or global fallback)
+  // Uses the dedicated pyq_links table managed via admin dashboard
+  async function getPyqLink(yearId) {
+    try {
+      const res = await fetch(`${API_BASE}?action=get_pyq_link&year_id=${encodeURIComponent(yearId || '')}`, { credentials: 'include' });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return (data && data.link_url) ? data.link_url : null;
+    } catch (e) {
+      console.warn('getPyqLink failed for year', yearId, e);
+      return null;
+    }
+  }
+
   // Initialize menu if elements exist
   if (menuButton && menuContent) {
     // Accessibility label fallback
@@ -478,13 +501,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     content.innerHTML = `
       <div class="section-header">
-        <h2>${type.charAt(0).toUpperCase() + type.slice(1)}</h2>
-        <p class="muted">Access to latest pharmaceutical research and ${type}</p>
+        <h2>${uiLabel(type)}</h2>
+        <p class="muted">Access to latest pharmaceutical research and ${uiLabel(type).toLowerCase()}</p>
       </div>
       <div class="grid resource-cards-grid">
         <div class="loading">
           <div class="spinner"></div>
-          <p>Loading ${type}...</p>
+          <p>Loading ${uiLabel(type).toLowerCase()}...</p>
         </div>
       </div>
     `;
@@ -503,7 +526,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (!resources || resources.length === 0) {
         grid.innerHTML = `<div class="empty-state">
-          <p>No ${type} available yet.</p>
+          <p>No ${uiLabel(type).toLowerCase()} available yet.</p>
           <small class="muted">Check back later for new content.</small>
         </div>`;
         return;
@@ -696,7 +719,7 @@ document.addEventListener('DOMContentLoaded', () => {
       </div>
       <div class="section-header">
         <h2>Select Subject</h2>
-        <p class="muted">Choose a subject to view ${type}</p>
+        <p class="muted">Choose a subject to view ${uiLabel(type).toLowerCase()}</p>
       </div>
       <div class="grid">
         <div class="loading">
@@ -756,7 +779,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
 
-      // Create subject buttons
+  // Create subject buttons
       subjects.forEach(subject => {
         const btn = document.createElement('button');
         btn.className = 'subject-btn';
@@ -781,6 +804,39 @@ document.addEventListener('DOMContentLoaded', () => {
       });
       // Reveal animation for new buttons
       addScrollReveal(grid);
+
+      // Append a "View PYQ" button at the bottom for all subject-based sections
+      // Admin-managed link from dedicated pyq_links table
+      const ctaWrap = document.createElement('div');
+      ctaWrap.className = 'actions';
+      ctaWrap.style.cssText = 'margin-top:1rem; display:flex; justify-content:center;';
+      const btn = document.createElement('a');
+      btn.className = 'btn';
+      btn.textContent = 'View PYQ';
+      btn.setAttribute('aria-label', 'View Previous Year Questions');
+      btn.href = '#';
+      btn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        // Fetch year-specific or global PYQ link
+        const link = await getPyqLink(year);
+        if (!link) {
+          // Fallback: route to internal questions section by year if no admin link configured
+          location.hash = '#' + new URLSearchParams({ type: 'questions', year: year }).toString();
+          return;
+        }
+        if (/^https?:\/\//i.test(link)) {
+          window.open(link, '_blank', 'noopener');
+        } else if (link.startsWith('#')) {
+          // Allow admin to supply internal hash directly
+          location.hash = link.slice(1);
+        } else {
+          // Treat as relative path
+          window.open(link, '_blank', 'noopener');
+        }
+      });
+      ctaWrap.appendChild(btn);
+      // Insert after the grid of subjects
+      content.appendChild(ctaWrap);
 
     } catch (error) {
       console.error('Error loading subjects:', error);
@@ -814,7 +870,7 @@ document.addEventListener('DOMContentLoaded', () => {
         <button class="btn ghost" id="backToYears">&larr; Back to Years</button>
       </div>
       <div class="section-header">
-        <h2>${type.charAt(0).toUpperCase() + type.slice(1)} Resources</h2>
+        <h2>${uiLabel(type)} Resources</h2>
         <p class="muted">Browse resources for the selected subject</p>
       </div>
       <div class="grid resource-cards-grid">
@@ -1154,7 +1210,161 @@ document.addEventListener('DOMContentLoaded', () => {
   // Set up hash change listener
   window.addEventListener('hashchange', handleHashChange);
   
-  // Initial render
+  // Home Tabs: accessibility-friendly tab interface for Home / About / Contact / News
+  function initHomeTabs() {
+    const root = document.querySelector('.home-tabs');
+    if (!root) return;
+    const tabs = Array.from(root.querySelectorAll('[role="tab"]'));
+    // Panels may live outside the nav (top fixed bar). Query document globally.
+    const panels = Array.from(document.querySelectorAll('.home-tab-panel'));
+
+    function activate(panelId) {
+      tabs.forEach(t => {
+        const controls = t.getAttribute('aria-controls');
+        const sel = controls === panelId;
+        t.classList.toggle('active', sel);
+        t.setAttribute('aria-selected', sel ? 'true' : 'false');
+        t.tabIndex = sel ? 0 : -1;
+      });
+      panels.forEach(p => {
+        const show = p.id === panelId;
+        p.hidden = !show;
+        p.classList.toggle('active', show);
+      });
+    }
+
+    function scrollToPanel(panelId) {
+      const panel = document.getElementById(panelId);
+      if (!panel) return;
+      // Delay to ensure visibility state updated before measuring
+      requestAnimationFrame(() => {
+        const offset = 90; // compensate for fixed nav height
+        const top = panel.getBoundingClientRect().top + window.scrollY - offset;
+        window.scrollTo({ top: top < 0 ? 0 : top, behavior: 'smooth' });
+        panel.classList.add('panel-flash');
+        setTimeout(() => panel.classList.remove('panel-flash'), 800);
+      });
+    }
+
+    // Keyboard navigation (ArrowLeft/ArrowRight/Home/End)
+    tabs.forEach((t, idx) => {
+      t.addEventListener('click', () => activate(t.getAttribute('aria-controls')));
+      t.addEventListener('keydown', e => {
+        if (!['ArrowRight','ArrowLeft','Home','End'].includes(e.key)) return;
+        e.preventDefault();
+        const current = tabs.indexOf(document.activeElement);
+        if (e.key === 'ArrowRight') tabs[(current + 1) % tabs.length].focus();
+        else if (e.key === 'ArrowLeft') tabs[(current - 1 + tabs.length) % tabs.length].focus();
+        else if (e.key === 'Home') tabs[0].focus();
+        else if (e.key === 'End') tabs[tabs.length - 1].focus();
+      });
+    });
+
+    // Utilities
+    function escapeHtml(str){
+      return String(str||'').replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    }
+
+    // News loader
+    async function loadNewsItems() {
+      const container = document.querySelector('#newsList');
+      const emptyState = document.querySelector('#newsEmpty');
+      if (!container) return;
+      container.innerHTML = '<div class="loading"><div class="spinner"></div><p>Loading news...</p></div>';
+      try {
+        const res = await fetch(`${API_BASE}?action=list_news`);
+        if (!res.ok) throw new Error('Failed ('+res.status+')');
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length){
+          container.innerHTML = '';
+          if (emptyState) emptyState.style.display = 'block';
+          return;
+        }
+        if (emptyState) emptyState.style.display = 'none';
+        container.innerHTML = items.map(n => {
+          const title = escapeHtml(n.title);
+          const body = escapeHtml(n.body || '');
+          const created = escapeHtml((n.published_at || n.created_at || '').slice(0,10));
+          const shortBody = body.length > 220 ? body.slice(0,220) + '…' : body;
+          return `
+            <article class="news-item card" data-scroll="up" tabindex="0">
+              <h3 style="margin:0 0 .5rem;">${title}</h3>
+              <p style="margin:0 0 .75rem;" class="muted" data-full="${body}">${shortBody}</p>
+              ${created ? `<div style="font-size:.75rem;color:#666;">${created}</div>` : ''}
+            </article>
+          `;
+        }).join('');
+        try { addScrollReveal(container); } catch(_) {}
+        // Expand on click if truncated
+        container.addEventListener('click', e => {
+          const p = e.target.closest('p[data-full]');
+          if (!p) return;
+          if (p.textContent.endsWith('…')) {
+            p.textContent = p.getAttribute('data-full');
+          }
+        });
+      } catch(err){
+        console.error('News load error', err);
+        container.innerHTML = '<p class="error">Failed to load news.</p>';
+      }
+    }
+
+    // Contact form wiring
+    function wireContactForm(){
+      const form = document.querySelector('#contactForm');
+      if (!form) return;
+      const statusEl = document.querySelector('#contactStatus');
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = (form.elements['name']?.value || '').trim();
+        const email = (form.elements['email']?.value || '').trim();
+        const subject = (form.elements['subject']?.value || '').trim();
+        const message = (form.elements['message']?.value || '').trim();
+        if (!name || !message){
+          if (statusEl){ statusEl.textContent = 'Please provide your name and message.'; statusEl.className = 'muted error'; }
+          return;
+        }
+        if (statusEl){ statusEl.textContent = 'Sending...'; statusEl.className = 'muted'; }
+        const fd = new FormData();
+        fd.set('name', name);
+        fd.set('email', email);
+        fd.set('subject', subject);
+        fd.set('message', message);
+        try {
+          const res = await fetch(`${API_BASE}?action=submit_contact`, { method: 'POST', body: fd });
+          const data = await res.json().catch(()=>({}));
+          if (!res.ok) throw new Error(data.error || ('Failed ('+res.status+')'));
+          if (statusEl){ statusEl.textContent = 'Message sent. Thank you!'; statusEl.className = 'muted success'; }
+          form.reset();
+        } catch(err){
+          console.error('Contact submit failed', err);
+          if (statusEl){ statusEl.textContent = err.message || 'Failed to send.'; statusEl.className = 'muted error'; }
+        }
+      });
+    }
+
+    // Initial state
+    activate('home-pane');
+    // Lazy-load news only if its tab becomes active (performance) but load once if already requested
+    let newsLoaded = false;
+    tabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const id = btn.getAttribute('aria-controls');
+        activate(id);
+        if (id === 'news-pane' && !newsLoaded) { newsLoaded = true; loadNewsItems(); }
+        if (id === 'contact-pane') { wireContactForm(); }
+        scrollToPanel(id);
+      });
+    });
+    // Pre-wire contact form & load news if hash indicates news
+    wireContactForm();
+    if (location.hash.includes('news-pane')) { newsLoaded = true; loadNewsItems(); }
+  }
+
+  // Initialize tabs before initial library hash render
+  initHomeTabs();
+
+  // Initial render of library hash-based sections
   handleHashChange();
 });
 

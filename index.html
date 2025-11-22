@@ -29,7 +29,9 @@
   <div id="authPanel" style="display:none;position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.45);backdrop-filter:blur(2px);">
     <div style="max-width:480px;margin:10vh auto;background:#fff;border-radius:18px;box-shadow:0 24px 72px -12px rgba(31,6,43,.35);padding:1.5rem 1.75rem;">
       <div style="display:flex;align-items:center;gap:1rem;">
-  <img src="assets/images/logo.jpeg" alt="Logo" style="width:56px;height:56px;border-radius:14px;object-fit:cover;" />
+        <div class="brand-logo">
+          <img src="assets/images/logo.jpeg" alt="Logo">
+        </div>
         <div>
           <h2 style="margin:0;font-size:1.35rem;letter-spacing:-.5px;">Access Required</h2>
           <div class="muted" style="font-size:.85rem;">You need to login to view the resources.</div>
@@ -46,7 +48,7 @@
       </div>
     </div>
   </div>
-  <div class="menu-tab" role="navigation">
+  <div class="menu-tab top-bar" role="navigation">
     <button class="menu-button" id="menuButton" aria-label="Menu" title="Open menu">
       <span class="material-icons">more_vert</span>
     </button>
@@ -62,11 +64,11 @@
         </a>
         <a href="#" class="menu-item" data-library="journals" role="menuitem">
           <span class="material-icons">article</span>
-          Journals
+          Article Publication
         </a>
         <a href="#" class="menu-item" data-library="publications" role="menuitem">
           <span class="material-icons">description</span>
-          Publications
+          Research Publications
         </a>
         <a href="#" class="menu-item" data-library="directory" role="menuitem">
           <span class="material-icons">people</span>
@@ -86,7 +88,7 @@
         </a>
         <a href="#" class="menu-item" data-library="important-questions" role="menuitem">
           <span class="material-icons">priority_high</span>
-          Important Questions
+          Important Notes
         </a>
         <a href="#" class="menu-item" data-library="resources" role="menuitem">
           <span class="material-icons">folder</span>
@@ -104,6 +106,16 @@
     </div>
   </div>
 
+  <!-- Top navigation capsule (moved from inside hero) -->
+  <nav class="home-tabs top-nav" aria-label="Primary site sections">
+    <div class="home-tab-buttons" role="tablist">
+      <button class="home-tab-btn active" data-tab="home-pane" role="tab" aria-selected="true" aria-controls="home-pane">Home</button>
+      <button class="home-tab-btn" data-tab="about-pane" role="tab" aria-selected="false" aria-controls="about-pane">About Us</button>
+      <a class="home-tab-btn" href="courses.html" role="link" aria-label="Courses page">Courses</a>
+      <button class="home-tab-btn" data-tab="contact-pane" role="tab" aria-selected="false" aria-controls="contact-pane">Contact Us</button>
+      <button class="home-tab-btn" data-tab="news-pane" role="tab" aria-selected="false" aria-controls="news-pane">Latest News & Updates</button>
+    </div>
+  </nav>
   <div class="hero-section">
     <div class="container">
       <header class="header">
@@ -129,7 +141,7 @@
               <div class="hero-slide-grid">
                 <div class="hero-copy">
                   <h2 class="hero-title">Your Pharm D Co‑Pilot</h2>
-                  <p class="hero-sub">Discover curated books, journals, publications, and question banks — all in one hub.</p>
+                  <p class="hero-sub">Discover curated books, article publications, research publications, and question banks — all in one hub.</p>
                   <div class="hero-cta">
                     <a href="#type=books" class="btn">Explore Books</a>
                     <a href="#type=questions" class="btn ghost">Practice Questions</a>
@@ -166,16 +178,16 @@
             </div>
           </div>
 
-          <!-- Journals -->
+          <!-- Article Publication (formerly Journals) -->
           <div class="hero-slide">
-            <div class="hero-glass" role="group" aria-label="Journals slide">
+            <div class="hero-glass" role="group" aria-label="Article Publication slide">
               <div class="hero-slide-grid">
                 <div class="hero-copy">
-                  <h2 class="hero-title">Pharmacy Journals</h2>
+                  <h2 class="hero-title">Article Publication</h2>
                   <p class="hero-sub">Stay updated with latest research and peer‑reviewed articles.</p>
                   <div class="hero-cta">
-                    <a href="#type=journals" class="btn">Browse Journals</a>
-                    <a href="#type=publications" class="btn ghost">See Publications</a>
+                    <a href="#type=journals" class="btn">Browse Article Publication</a>
+                    <a href="#type=publications" class="btn ghost">See Research Publications</a>
                   </div>
                 </div>
                 <div class="hero-side">
@@ -187,15 +199,15 @@
             </div>
           </div>
 
-          <!-- Publications -->
+          <!-- Research Publications (formerly Publications) -->
           <div class="hero-slide">
-            <div class="hero-glass" role="group" aria-label="Publications slide">
+            <div class="hero-glass" role="group" aria-label="Research Publications slide">
               <div class="hero-slide-grid">
                 <div class="hero-copy">
-                  <h2 class="hero-title">Publications</h2>
+                  <h2 class="hero-title">Research Publications</h2>
                   <p class="hero-sub">Research papers and academic publications from the community.</p>
                   <div class="hero-cta">
-                    <a href="#type=publications" class="btn">Open Publications</a>
+                    <a href="#type=publications" class="btn">Open Research Publications</a>
                     <a href="#type=resources" class="btn ghost">General Resources</a>
                   </div>
                 </div>
@@ -250,13 +262,13 @@
             </div>
           </div>
 
-          <!-- Important Questions -->
+          <!-- Important Notes -->
           <div class="hero-slide">
-            <div class="hero-glass" role="group" aria-label="Important Questions slide">
+            <div class="hero-glass" role="group" aria-label="Important Notes slide">
               <div class="hero-slide-grid">
                 <div class="hero-copy">
-                  <h2 class="hero-title">Important Questions</h2>
-                  <p class="hero-sub">Curated must‑know topics and high‑yield questions.</p>
+                  <h2 class="hero-title">Important Notes</h2>
+                  <p class="hero-sub">Curated must‑know topics and high‑yield notes.</p>
                   <div class="hero-cta">
                     <a href="#type=important-questions" class="btn">View Important</a>
                     <a href="#type=questions" class="btn ghost">All Case Studies</a>
@@ -368,6 +380,39 @@
           <span>Chat With Us</span>
         </button>
       </div>
+      <div class="home-tab-panels" style="margin-top:14px;max-width:1080px;padding:0 18px;margin-left:auto;margin-right:auto;">
+          <div id="home-pane" class="home-tab-panel tab-panel active" role="tabpanel" aria-labelledby="home-tab" style="animation:fadeIn .35s ease;">
+            <p class="muted" style="margin:0 0 10px;">Welcome to the Pharm D Mates hub. Use the menu for deep library navigation or switch tabs above for quick info.</p>
+          </div>
+          <div id="about-pane" class="home-tab-panel tab-panel" role="tabpanel" hidden aria-labelledby="about-tab" style="animation:fadeIn .35s ease;">
+            <div class="card" style="padding:1rem;">
+              <h3 style="margin-top:0;">About Us</h3>
+              <p>The PharmD Mates platform has been created as a cohesive digital ecosystem that integrates six main components — a healthcare professional directory, case studies, book links, a vacancy portal, resources, and career guidance — in order to fill these important gaps. The platform offers verified job or internship opportunities through partnerships with healthcare institutions; curated book links; online platforms for evidence-based academic study; and real-world clinical cases to improve therapeutic decision-making.</p>
+              <p>Students can also connect with mentors and industry experts through the directory's professional profiles, which include photos, bios, and LinkedIn IDs.</p>
+              <p style="margin-bottom:0;">PharmD Mates is a comprehensive, scalable, PharmD-oriented platform that integrates learning, professional networking, and employment support. It fills critical educational and career gaps, making it an impactful innovation for pharmacy education, while building towards long-term sustainable revenue.</p>
+            </div>
+          </div>
+          <div id="contact-pane" class="home-tab-panel tab-panel" role="tabpanel" hidden aria-labelledby="contact-tab" style="animation:fadeIn .35s ease;">
+            <form id="contactForm" class="card" style="padding:1rem;display:flex;flex-direction:column;gap:.75rem;max-width:640px;">
+              <h3 style="margin:0;">Contact Us</h3>
+              <p class="muted" style="margin:0;">Send a message to the admins. They will review it from the dashboard.</p>
+              <div style="display:flex;flex-direction:column;gap:.5rem;">
+                <input type="text" name="name" placeholder="Your Name" required style="padding:.6rem .75rem;border:1px solid #d1d5db;border-radius:8px;" />
+                <input type="email" name="email" placeholder="Email (optional)" style="padding:.6rem .75rem;border:1px solid #d1d5db;border-radius:8px;" />
+                <input type="text" name="subject" placeholder="Subject (optional)" style="padding:.6rem .75rem;border:1px solid #d1d5db;border-radius:8px;" />
+                <textarea name="message" placeholder="Your message" required rows="4" style="padding:.6rem .75rem;border:1px solid #d1d5db;border-radius:8px;resize:vertical;"></textarea>
+              </div>
+              <div style="display:flex;align-items:center;gap:.75rem;flex-wrap:wrap;">
+                <button type="submit" class="btn primary" style="min-width:140px;">Send Message</button>
+                <span id="contactStatus" class="muted" style="font-size:.8rem;"></span>
+              </div>
+            </form>
+          </div>
+          <div id="news-pane" class="home-tab-panel tab-panel" role="tabpanel" hidden aria-labelledby="news-tab" style="animation:fadeIn .35s ease;">
+            <div id="newsList" class="grid news-items" style="display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));"></div>
+            <div id="newsEmpty" class="muted" style="display:none;">No news posted yet.</div>
+          </div>
+        </div>
     </div>
   </div>
 
@@ -412,8 +457,8 @@
 
       <main class="card library-section" id="journals-library" style="display: none;">
         <div class="section-header">
-          <h2>Pharmacy Journals</h2>
-          <p class="muted">Access to latest pharmaceutical research and journals</p>
+          <h2>Article Publication</h2>
+          <p class="muted">Access to latest pharmaceutical research and article publications</p>
         </div>
         <div id="journals-content" class="library-content">
           <div id="journalsGrid" class="grid"></div>
@@ -422,8 +467,8 @@
 
       <main class="card library-section" id="publications-library" style="display: none;">
         <div class="section-header">
-          <h2>Publications</h2>
-          <p class="muted">Research papers and academic publications</p>
+          <h2>Research Publications</h2>
+          <p class="muted">Research papers and academic research publications</p>
         </div>
         <div id="publications-content" class="library-content">
           <div id="publicationsGrid" class="grid"></div>
@@ -456,8 +501,8 @@
 
       <main class="card library-section" id="important-questions-library" style="display: none;">
         <div class="section-header">
-          <h2>Important Questions</h2>
-          <p class="muted">Curated important questions for exam preparation</p>
+          <h2>Important Notes</h2>
+          <p class="muted">Curated important notes for exam preparation</p>
         </div>
         <div id="important-questions-content" class="library-content">
         </div>
@@ -492,13 +537,70 @@
       
     </div>
 
-    <footer>
-  © <span id="year"></span> Pharm D Mates • Built for students and faculty VertexHub
+    <footer class="site-footer">
+      <div class="footer-content">
+        <div class="footer-section">
+          <h4>Pharm D Mates</h4>
+          <p>Your comprehensive resource hub for Pharm D studies, collaborations, and career opportunities.</p>
+          <div class="footer-contact">
+            <a href="mailto:pharmdmates@gmail.com" class="footer-contact-item">
+              <span class="icon-badge email"><span class="material-icons">email</span></span>
+              <span>pharmdmates@gmail.com</span>
+            </a>
+            <a href="https://www.instagram.com/pharmdmates?igsh=MWVyajU2OHU4MW9hNg==" target="_blank" rel="noopener noreferrer" class="footer-contact-item">
+              <span class="icon-badge instagram">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                </svg>
+              </span>
+              <span>@pharmdmates</span>
+            </a>
+          </div>
+        </div>
+        <div class="footer-section">
+          <h4>Quick Links</h4>
+          <ul class="footer-links">
+            <li><a href="#books">Books</a></li>
+            <li><a href="#journals">Journals</a></li>
+            <li><a href="#directory">Directory</a></li>
+            <li><a href="#vacancies">Vacancies</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>© <span id="year"></span> Pharm D Mates • Built for students and faculty by VertexHub</p>
+      </div>
     </footer>
   </div>
 
   <script src="assets/js/app.fixed.js?v=20251109c"></script>
   <script src="assets/js/auth.js?v=20251107"></script>
+  <!-- Minimal UI fallback if app.fixed.js fails to load (Unexpected token '<' -> HTML response) -->
+  <script>
+    (function(){
+      // If the main UI script didn't run, try a cache-busted reload and wire a basic menu
+      function wireBasicMenu(){
+        var btn = document.getElementById('menuButton');
+        var content = document.getElementById('menuContent');
+        if(!btn || !content || btn.__basicWired) return;
+        btn.__basicWired = true;
+        btn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); content.classList.toggle('active'); });
+        document.addEventListener('click', function(e){ if(!content.contains(e.target) && e.target !== btn) content.classList.remove('active'); });
+      }
+      if (!window.__APP_FIXED_OK__) {
+        try {
+          // Attempt to load the script again without stale cache
+          var s = document.createElement('script');
+          s.src = 'assets/js/app.fixed.js?v=' + Date.now();
+          s.onerror = wireBasicMenu; // if reload also fails, at least wire the menu
+          s.onload = function(){ /* if this succeeds, the main script will take over */ };
+          document.body.appendChild(s);
+        } catch(_) { wireBasicMenu(); }
+        // Also wire immediately so user can open menu without waiting
+        wireBasicMenu();
+      }
+    })();
+  </script>
   <!-- Pre-stub to block fallback race if main script loads slowly -->
   <script>
     // Early stub with queued open support so "Chat With Us" can be clicked before main script loads
@@ -526,16 +628,26 @@
   var panel = document.createElement('div');
   panel.id='assistantModalPanel';
   panel.style.cssText='width:640px;max-width:96vw;max-height:80vh;display:flex;flex-direction:column;background:#0f0f10;color:#e5e7eb;border-radius:20px;box-shadow:0 24px 64px -12px rgba(0,0,0,.55);overflow:hidden;';
-  panel.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,#0b0b0c,#18181b);color:#fff;font-weight:600">Assistant <button type="button" id="assistantClose" style="background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer;line-height:1">×</button></div><div id="assistantBody" style="flex:1;overflow:auto;padding:14px 16px;font-size:14px;color:#e5e7eb"></div><div style="border-top:1px solid #262626;display:flex;background:#0b0b0c"><textarea id="assistantInput" placeholder="Ask me anything..." style="flex:1;border:0;padding:10px;resize:none;height:54px;background:#0b0b0c;color:#e5e7eb"></textarea><button id="assistantSend" style="width:80px;border:0;background:#0ea5e9;color:#fff;font-weight:600">Send</button></div>';
+  panel.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(90deg,#0b0b0c,#18181b);color:#fff;font-weight:600">Pharm D mates AI <button type="button" id="assistantClose" style="background:transparent;border:0;color:#fff;font-size:20px;cursor:pointer;line-height:1">×</button></div><div id="assistantBody" style="flex:1;overflow:auto;padding:14px 16px;font-size:14px;color:#e5e7eb"></div><div style="border-top:1px solid #262626;display:flex;background:#0b0b0c"><textarea id="assistantInput" placeholder="Ask me anything..." style="flex:1;border:0;padding:10px;resize:none;height:54px;background:#0b0b0c;color:#e5e7eb"></textarea><button id="assistantSend" style="width:80px;border:0;background:#0ea5e9;color:#fff;font-weight:600">Send</button></div>';
         ov.appendChild(panel);
         document.body.appendChild(ov);
+        // Show a one-time welcome message on first open for fallback modal
+        try {
+          var fbBody = panel.querySelector('#assistantBody');
+          var w = document.createElement('div');
+          var b = document.createElement('span');
+          w.style.marginBottom='8px';
+          b.style.cssText='display:inline-block;padding:8px 10px;border-radius:12px;max-width:85%;background:#1f2937;color:#e5e7eb';
+          b.textContent = 'Welcome to Pharm D Mates AI';
+          w.appendChild(b); fbBody.appendChild(w);
+        } catch(_){}
         ov.addEventListener('click', function(e){ if(e.target===ov){ ov.remove(); }});
         panel.querySelector('#assistantClose').addEventListener('click', function(){ ov.remove(); });
         panel.querySelector('#assistantSend').addEventListener('click', function(){
           var val = panel.querySelector('#assistantInput').value.trim();
           if(!val) return; panel.querySelector('#assistantInput').value='';
           appendFallbackMessage('user', val);
-          appendFallbackMessage('bot', '...');
+          appendFallbackMessage('bot', '✍️ Searching and generating answer...');
           if(window.SCOP_CHATBOT && typeof SCOP_CHATBOT.send==='function' && !SCOP_CHATBOT.__earlyStub){
             SCOP_CHATBOT.send(val);
             // Replace the three-dot bubble with SCOP_CHATBOT response later handled by main script; leave as is.
@@ -543,7 +655,23 @@
             // Direct fetch fallback
             fetch('api/index.php?action=chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:val})})
               .then(r=>r.json().catch(()=>({reply:'(raw) '+r.status})))
-              .then(d=>{ replaceLastBot(d.reply||d.error||'(no reply)'); })
+              .then(d=>{ 
+                var displayReply = d.reply;
+                if (!displayReply && d.error){
+                  if (typeof d.error === 'object' && d.error){
+                    displayReply = d.error.message || d.error.status || d.error.code || JSON.stringify(d.error);
+                  } else {
+                    displayReply = d.error;
+                  }
+                }
+                if (!displayReply) displayReply = '(no reply)';
+                replaceLastBot(displayReply);
+                if (Array.isArray(d.sources) && d.sources.length){
+                  appendFallbackMessage('bot', 'Related Resources:\n' + d.sources.map(function(s){
+                    return '• ' + (s.title||'Resource') + (s.link ? ' → ' + s.link : '');
+                  }).join('\n'));
+                }
+              })
               .catch(err=>{ replaceLastBot('Network error: '+err.message); });
           }
         });
@@ -565,12 +693,14 @@
     };
   </script>
   <!-- Chatbot primary script (cache-bust with new version) -->
+  <script>window.__HIDE_CHATBOT_FAB=true;</script>
   <script src="assets/js/chatbot.js?v=20251109d" id="chatbotMain"></script>
-  <!-- Fallback injector: if chatbot script failed or was blocked, build a minimal button -->
+  <!-- Fallback injector: if chatbot script failed or was blocked, build a minimal button (disabled via __HIDE_CHATBOT_FAB) -->
   <script>
     (function(){
       const start = Date.now();
       function injectFallback(){
+        if (window.__HIDE_CHATBOT_FAB === true) { console.log('[chatbot-fallback] FAB disabled by flag'); return; }
         // Only skip if main chatbot API is live AND a FAB exists in DOM
         const apiReady = !!(window.SCOP_CHATBOT && typeof window.SCOP_CHATBOT.open === 'function');
         const fabExists = !!document.querySelector('.chatbot-fab');
@@ -585,7 +715,7 @@
             panel = document.createElement('div');
             panel.id = 'chatbotFallbackPanel';
             panel.className = 'chatbot-panel';
-            panel.innerHTML = '<div class="chatbot-header">Assistant</div><div class="chatbot-body" id="fbChatBody"></div><form class="chatbot-input" id="fbChatForm"><textarea id="fbChatInput" placeholder="Ask..."></textarea><button type="submit">Send</button></form>';
+            panel.innerHTML = '<div class="chatbot-header">Pharm D mates AI</div><div class="chatbot-body" id="fbChatBody"></div><form class="chatbot-input" id="fbChatForm"><textarea id="fbChatInput" placeholder="Ask..."></textarea><button type="submit">Send</button></form>';
             document.body.appendChild(panel);
             panel.querySelector('#fbChatForm').addEventListener('submit', async function(e){
               e.preventDefault();
@@ -598,8 +728,25 @@
               try { btn.classList.add('speaking'); } catch(_) {}
               try {
                 const resp = await fetch('api/index.php?action=chat', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:val})});
-                let txt; try { const j = await resp.json(); txt = j.reply || j.error || JSON.stringify(j); } catch(_){ txt = await resp.text(); }
+                let txt = '';
+                let dataJson = null;
+                try { dataJson = await resp.json(); } catch(_){ /* fallback later */ }
+                if (dataJson) {
+                  if (dataJson.reply) { txt = dataJson.reply; }
+                  else if (dataJson.error) {
+                    const e = dataJson.error;
+                    if (typeof e === 'object' && e) { txt = e.message || e.status || e.code || JSON.stringify(e); }
+                    else { txt = String(e); }
+                  } else { txt = JSON.stringify(dataJson); }
+                }
+                if (!txt) { try { txt = await resp.text(); } catch(_){ txt = '(no reply)'; } }
                 body.lastElementChild.querySelector('span').textContent = txt.slice(0,800);
+                if (dataJson && Array.isArray(dataJson.sources) && dataJson.sources.length) {
+                  body.innerHTML += '<div style="margin-bottom:6px"><span style="display:inline-block;background:#1f2937;color:#e5e7eb;padding:6px 8px;border-radius:12px;white-space:pre-line">'+
+                    ('Related Resources:\n' + dataJson.sources.map(function(s){return '• '+(s.title||'Resource') + (s.link? ' → '+s.link:'');}).join('\n')).replace(/</g,'&lt;')+
+                    '</span></div>';
+                  body.scrollTop = body.scrollHeight;
+                }
                 body.scrollTop = body.scrollHeight;
               } catch(err){ body.lastElementChild.querySelector('span').textContent = 'Network error: '+err.message; }
               finally { try { btn.classList.remove('speaking'); } catch(_) {} }

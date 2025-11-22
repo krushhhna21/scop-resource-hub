@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Pharm D Courses • Pharm D Mates</title>
+  <link rel="stylesheet" href="assets/css/styles.css?v=20251109e">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg?v=20251109">
+  <meta name="description" content="Structured Pharm D courses and learning paths">
+  <meta name="api-base" content="/api/index.php">
+  <style>
+    .courses-hero {padding:120px 24px 40px;max-width:1080px;margin:0 auto;}
+    .courses-grid {display:grid;gap:18px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));margin-top:28px;}
+    .course-card {position:relative;display:flex;flex-direction:column;gap:.6rem;padding:1rem 1.05rem;border-radius:18px;background:#ffffff;box-shadow:0 8px 28px -10px rgba(31,41,55,.15);border:1px solid #e5e7eb;}
+    .course-card h3 {margin:.25rem 0 .35rem;font-size:1.05rem;letter-spacing:-.25px;font-weight:600;}
+    .course-meta {font-size:.7rem;letter-spacing:.5px;text-transform:uppercase;font-weight:600;color:#64748b;display:flex;gap:.75rem;flex-wrap:wrap;}
+    .course-desc {font-size:.8rem;line-height:1.35;color:#475569;flex:1;}
+    .course-actions {display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.25rem;}
+    .badge {display:inline-flex;align-items:center;gap:4px;font-size:.65rem;font-weight:600;padding:4px 8px;border-radius:999px;background:#f1f5f9;color:#0f172a;}
+    .pill-enroll {background:linear-gradient(90deg,#3b82f6,#06b6d4);color:#fff;padding:8px 14px;border:0;border-radius:999px;font-size:.72rem;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;box-shadow:0 4px 14px -4px rgba(6,182,212,.4);}    
+    .courses-header h1 {margin:0;font-size:2.1rem;letter-spacing:-1px;background:linear-gradient(90deg,#3b82f6,#06b6d4);-webkit-background-clip:text;color:transparent;}
+    .courses-header p {margin:.6rem 0 0;max-width:720px;font-size:.95rem;color:#334155;}
+    .mini-nav {position:fixed;top:0;left:0;right:0;z-index:60;display:flex;align-items:center;justify-content:space-between;padding:8px 14px;background:linear-gradient(90deg,#0b0b0c,#18181b);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.05);}    
+    .mini-nav .brand {display:flex;align-items:center;gap:.75rem;color:#fff;font-weight:700;}
+    .mini-nav .brand img {width:42px;height:42px;border-radius:12px;object-fit:cover;}
+    .mini-nav .links {display:flex;gap:.5rem;}
+    .mini-nav a {text-decoration:none;font-size:.75rem;font-weight:600;padding:8px 12px;border-radius:999px;color:#e2e8f0;background:rgba(255,255,255,.06);transition:.25s;}    
+    .mini-nav a:hover {background:rgba(255,255,255,.12);}
+    .filter-bar {margin-top:8px;display:flex;gap:.75rem;flex-wrap:wrap;align-items:center;background:#ffffff;padding:.75rem 1rem;border-radius:14px;border:1px solid #e2e8f0;box-shadow:0 6px 20px -8px rgba(0,0,0,.12);}
+    .filter-bar input, .filter-bar select {padding:.55rem .7rem;border:1px solid #cbd5e1;border-radius:10px;font-size:.75rem;}
+    .filter-bar button {padding:.55rem .9rem;border-radius:10px;background:#0ea5e9;color:#fff;border:0;font-size:.75rem;font-weight:600;cursor:pointer;}
+    @media (max-width:640px){.courses-header h1{font-size:1.55rem;} .course-card{padding:.9rem .85rem;} }
+  </style>
+</head>
+<body>
+  <div class="mini-nav" role="navigation" aria-label="Site navigation">
+    <div class="brand"><img src="assets/images/logo.jpeg" alt="Logo"><span>Pharm D Mates</span></div>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="#" class="active" style="background:linear-gradient(90deg,#3b82f6,#06b6d4);color:#fff;">Courses</a>
+      <a href="index.html#type=books">Books</a>
+      <a href="index.html#type=questions">Case Studies</a>
+    </div>
+  </div>
+  <section class="courses-hero" aria-labelledby="courses-heading">
+    <div class="courses-header">
+      <h1 id="courses-heading">Structured Courses</h1>
+      <p>Explore curated learning paths designed to strengthen your Pharm D foundation. Each course will include modules, notes, assessments, and an enrollment link when live.</p>
+    </div>
+
+    <div class="filter-bar" aria-label="Course filters">
+      <input type="text" id="courseSearch" placeholder="Search courses..." aria-label="Search courses">
+      <select id="courseCategory" aria-label="Filter by category">
+        <option value="">All Categories</option>
+        <option value="foundations">Foundations</option>
+        <option value="therapeutics">Therapeutics</option>
+        <option value="practice">Practice & Ethics</option>
+      </select>
+      <button id="courseFilterBtn" type="button">Filter</button>
+      <span id="courseFilterStatus" class="muted" style="font-size:.65rem;"></span>
+    </div>
+
+    <div id="coursesGrid" class="courses-grid" aria-live="polite">
+      <!-- Course cards injected by script -->
+    </div>
+  </section>
+
+  <script>
+    const COURSE_DATA = [
+      { id: 1, title: 'Clinical Pharmacology Basics', category: 'foundations', duration: '4 weeks', level: 'Beginner', status: 'upcoming', summary: 'Foundational mechanisms, ADME principles, and clinical relevance.', applyLink: null },
+      { id: 2, title: 'Pharmacotherapeutics I', category: 'therapeutics', duration: '6 weeks', level: 'Intermediate', status: 'upcoming', summary: 'System-based therapy modules with integrated case reviews.', applyLink: null },
+      { id: 3, title: 'Pharmacy Practice & Ethics', category: 'practice', duration: '3 weeks', level: 'Beginner', status: 'upcoming', summary: 'Professional standards, patient communication, legal & ethical frameworks.', applyLink: null },
+      { id: 4, title: 'Advanced Drug Interactions', category: 'therapeutics', duration: '5 weeks', level: 'Advanced', status: 'planned', summary: 'Deep dive into complex pharmacokinetic & pharmacodynamic interactions.', applyLink: null },
+      { id: 5, title: 'Evidence-Based Therapeutics', category: 'therapeutics', duration: '5 weeks', level: 'Intermediate', status: 'planned', summary: 'Critical appraisal skills and guideline-driven therapy decisions.', applyLink: null }
+    ];
+
+    function renderCourses(list){
+      const grid = document.getElementById('coursesGrid');
+      if(!grid) return;
+      if(!list.length){
+        grid.innerHTML = '<div class="card" style="padding:1rem;border-radius:16px;background:#fff;border:1px solid #e2e8f0;grid-column:1/-1;text-align:center;"><p style="margin:0;font-weight:600;">No courses match your filters.</p><p class="muted" style="margin:.35rem 0 0;font-size:.7rem;">Adjust search or category.</p></div>';
+        return;
+      }
+      grid.innerHTML = list.map(c => {
+        const statusBadge = c.status === 'upcoming' ? 'Upcoming' : (c.status === 'planned' ? 'Planned' : 'Open');
+        const canApply = !!c.applyLink;
+        return `<article class="course-card" data-status="${c.status}" tabindex="0" aria-label="Course: ${c.title}">
+          <div class="course-meta"><span>${c.category}</span><span>${c.duration}</span><span>${c.level}</span></div>
+          <h3>${c.title}</h3>
+          <p class="course-desc">${c.summary}</p>
+          <div class="course-actions">
+            <span class="badge" style="background:${c.status==='upcoming'?'#dbeafe':c.status==='planned'?'#fef9c3':'#dcfce7'};color:#0f172a;">${statusBadge}</span>
+            ${canApply ? `<a href="${c.applyLink}" target="_blank" rel="noopener" class="pill-enroll" aria-label="Apply to ${c.title}"><span class="material-icons" style="font-size:16px;">launch</span> Apply</a>` : `<button class="pill-enroll" disabled style="opacity:.55;cursor:not-allowed" aria-disabled="true"><span class="material-icons" style="font-size:16px;">hourglass_empty</span> Not Open</button>`}
+          </div>
+        </article>`;
+      }).join('');
+    }
+
+    function applyFilters(){
+      const search = document.getElementById('courseSearch').value.trim().toLowerCase();
+      const cat = document.getElementById('courseCategory').value;
+      const statusEl = document.getElementById('courseFilterStatus');
+      let filtered = COURSE_DATA.filter(c => (!cat || c.category === cat));
+      if(search){ filtered = filtered.filter(c => c.title.toLowerCase().includes(search) || c.summary.toLowerCase().includes(search)); }
+      renderCourses(filtered);
+      if(statusEl){ statusEl.textContent = `${filtered.length} course${filtered.length!==1?'s':''} shown`; }
+    }
+
+    document.getElementById('courseFilterBtn').addEventListener('click', applyFilters);
+    document.getElementById('courseSearch').addEventListener('keyup', e => { if(e.key==='Enter') applyFilters(); });
+    document.getElementById('courseCategory').addEventListener('change', applyFilters);
+
+    renderCourses(COURSE_DATA);
+    applyFilters();
+  </script>
+</body>
+</html>

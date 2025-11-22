@@ -199,4 +199,113 @@ class AdminController {
     $stmt->execute([$userId]);
     return ['success' => true];
   }
+
+  // PYQ Links Management
+  public function listPyqLinks() {
+    $this->ensure_auth();
+    $sql = "SELECT pl.id, pl.year_id, pl.link_url, pl.description, pl.is_active, pl.created_at, pl.updated_at,
+                   y.display_name AS year_name
+            FROM pyq_links pl
+            LEFT JOIN years y ON pl.year_id = y.id
+            ORDER BY pl.year_id IS NULL DESC, pl.year_id ASC";
+    $stmt = $this->pdo->query($sql);
+    return $stmt->fetchAll();
+  }
+
+  public function upsertPyqLink($yearId, $linkUrl, $description) {
+    $this->ensure_auth();
+    // Check if a link already exists for this year_id (including NULL for global)
+    if ($yearId === null) {
+      $stmt = $this->pdo->prepare("SELECT id FROM pyq_links WHERE year_id IS NULL LIMIT 1");
+      $stmt->execute();
+    } else {
+      $stmt = $this->pdo->prepare("SELECT id FROM pyq_links WHERE year_id = ? LIMIT 1");
+      $stmt->execute([$yearId]);
+    }
+    $existing = $stmt->fetch();
+    
+    if ($existing) {
+      // Update existing
+      $updateStmt = $this->pdo->prepare("UPDATE pyq_links SET link_url = ?, description = ?, updated_at = NOW() WHERE id = ?");
+      $updateStmt->execute([$linkUrl, $description, $existing['id']]);
+      return ['success' => true, 'action' => 'updated', 'id' => $existing['id']];
+    } else {
+      // Insert new
+      $insertStmt = $this->pdo->prepare("INSERT INTO pyq_links (year_id, link_url, description) VALUES (?, ?, ?)");
+      $insertStmt->execute([$yearId, $linkUrl, $description]);
+      return ['success' => true, 'action' => 'created', 'id' => $this->pdo->lastInsertId()];
+    }
+  }
+
+  public function deletePyqLink($id) {
+    $this->ensure_auth();
+    $stmt = $this->pdo->prepare("DELETE FROM pyq_links WHERE id = ?");
+    $stmt->execute([$id]);
+    return ['success' => true];
+  }
+
+  // Featured Students Management
+  public function listFeaturedStudents() {
+    $this->ensure_auth();
+    $sql = "SELECT fs.id, fs.user_id, fs.profile_photo, fs.linkedin_url, fs.instagram_url, fs.email, fs.bio, fs.display_order, fs.is_active,
+                   u.display_name, u.email AS user_email, sp.batch_year, sp.course
+            FROM featured_students fs
+            JOIN users u ON fs.user_id = u.id
+            LEFT JOIN student_profiles sp ON sp.user_id = fs.user_id
+            ORDER BY fs.display_order ASC, fs.id ASC";
+    try {
+      $stmt = $this->pdo->query($sql);
+      return $stmt->fetchAll();
+    } catch (Throwable $e) {
+      // If table doesn't exist, return empty
+      return [];
+    }
+  }
+
+  public function addFeaturedStudent($userId, $profilePhoto, $linkedin, $instagram, $email, $bio, $displayOrder) {
+    $this->ensure_auth();
+    // Check if student already featured
+    $check = $this->pdo->prepare("SELECT id FROM featured_students WHERE user_id = ?");
+    $check->execute([$userId]);
+    if ($check->fetch()) {
+      throw new Exception('Student is already featured');
+    }
+    
+    $stmt = $this->pdo->prepare("INSERT INTO featured_students (user_id, profile_photo, linkedin_url, instagram_url, email, bio, display_order) 
+                                 VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt->execute([$userId, $profilePhoto, $linkedin, $instagram, $email, $bio, $displayOrder]);
+    return ['success' => true, 'id' => $this->pdo->lastInsertId()];
+  }
+
+  public function updateFeaturedStudent($id, $profilePhoto, $linkedin, $instagram, $email, $bio, $displayOrder) {
+    $this->ensure_auth();
+    $updates = [];
+    $params = [];
+    
+    if ($profilePhoto !== null) { $updates[] = 'profile_photo = ?'; $params[] = $profilePhoto; }
+    if ($linkedin !== null) { $updates[] = 'linkedin_url = ?'; $params[] = $linkedin; }
+    if ($instagram !== null) { $updates[] = 'instagram_url = ?'; $params[] = $instagram; }
+    if ($email !== null) { $updates[] = 'email = ?'; $params[] = $email; }
+    if ($bio !== null) { $updates[] = 'bio = ?'; $params[] = $bio; }
+    if ($displayOrder !== null) { $updates[] = 'display_order = ?'; $params[] = $displayOrder; }
+    
+    if (empty($updates)) {
+      return ['success' => true, 'message' => 'No changes'];
+    }
+    
+    $params[] = $id;
+    $sql = "UPDATE featured_students SET " . implode(', ', $updates) . ", updated_at = NOW() WHERE id = ?";
+    $stmt = $this->pdo->prepare($sql);
+    $stmt->execute($params);
+    return ['success' => true];
+  }
+
+  public function deleteFeaturedStudent($id) {
+    $this->ensure_auth();
+    $stmt = $this->pdo->prepare("DELETE FROM featured_students WHERE id = ?");
+    $stmt->execute([$id]);
+    return ['success' => true];
+  }
 }
+
+

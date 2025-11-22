@@ -14,9 +14,41 @@ class ChatController {
   if ($model === '') { $model = getenv('GEMINI_MODEL') ?: 'gemini-1.5-flash-latest'; }
   $apiVersion = isset($this->config['gemini_api_version']) ? trim((string)$this->config['gemini_api_version']) : '';
   if ($apiVersion === '') { $apiVersion = getenv('GEMINI_API_VERSION') ?: 'v1beta'; }
+    // Helper to collect related resource links based on message keywords
+    $collectSources = function($rawMessage) {
+      $sources = [];
+      try {
+        $cfg = $this->config;
+        foreach (['db_host','db_name','db_user','db_pass'] as $k) { if (empty($cfg[$k])) return $sources; }
+        $dsn = "mysql:host={".$cfg['db_host']."};dbname={".$cfg['db_name']."};charset=utf8mb4";
+        $pdo = new PDO($dsn, $cfg['db_user'], $cfg['db_pass'], [PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION, PDO::ATTR_DEFAULT_FETCH_MODE=>PDO::FETCH_ASSOC]);
+        $text = mb_strtolower($rawMessage);
+        $parts = preg_split('/[^\p{L}\p{N}]+/u', $text, -1, PREG_SPLIT_NO_EMPTY);
+        if (!$parts) return $sources;
+        $stop = ['the','and','for','with','this','that','from','into','your','about','what','can','you','pharm','mates','study','help','need'];
+        $terms = [];
+        foreach ($parts as $p) { if (mb_strlen($p) >= 4 && !in_array($p,$stop,true)) { $terms[$p] = true; } }
+        $terms = array_keys($terms);
+        if (!$terms) return $sources;
+        $terms = array_slice($terms, 0, 8);
+        $conds = [];$params = [];
+        foreach ($terms as $t) { $like = '%'.$t.'%'; $conds[]='(r.title LIKE ? OR r.description LIKE ?)'; $params[]=$like; $params[]=$like; }
+        $sql = 'SELECT r.id,r.title,r.resource_type,r.external_url,r.file_path FROM resources r WHERE ' . implode(' OR ', $conds) . ' ORDER BY r.id DESC LIMIT 6';
+        $stmt = $pdo->prepare($sql); $stmt->execute($params); $rows=$stmt->fetchAll();
+        foreach ($rows as $row) {
+          $link = null;
+          if (!empty($row['external_url'])) { $link = $row['external_url']; }
+          elseif (!empty($row['file_path'])) { $link = preg_match('/^https?:\/\//i',$row['file_path']) ? $row['file_path'] : ('/' . ltrim($row['file_path'],'/')); }
+          $sources[] = [ 'id'=>(int)$row['id'], 'title'=>$row['title'], 'resource_type'=>$row['resource_type'], 'link'=>$link ];
+        }
+      } catch (Throwable $e) { /* silent */ }
+      return $sources;
+    };
 
     if ($apiKey === '') {
-      echo json_encode(['reply'=>"(local stub) I received your message: ".mb_substr($message,0,800),'note'=>'Set GEMINI_API_KEY/GEMINI_MODEL to enable real AI responses.']);
+      $replyText = "(local stub) I received your message: ".mb_substr($message,0,800);
+      $sources = $collectSources($message);
+      echo json_encode(['reply'=>$replyText,'note'=>'Set GEMINI_API_KEY/GEMINI_MODEL to enable real AI responses.','sources'=>$sources]);
       exit;
     }
 
@@ -56,9 +88,31 @@ class ChatController {
         if ($err) { $attempts[] = ['model'=>$m,'version'=>$ver,'error'=>$err]; continue; }
         $decoded = json_decode($resp, true);
         if (json_last_error() !== JSON_ERROR_NONE) { $attempts[] = ['model'=>$m,'version'=>$ver,'status'=>$status,'raw'=>substr($resp,0,200)]; continue; }
-        if (isset($decoded['error'])) { $attempts[] = ['model'=>$m,'version'=>$ver,'status'=>$status,'apiError'=>$decoded['error']]; if (intval($decoded['error']['code'] ?? 0) === 404) { continue; } else { http_response_code(502); echo json_encode(['error'=>$decoded['error']]); return; } }
+        if (isset($decoded['error'])) {
+          $attempts[] = ['model'=>$m,'version'=>$ver,'status'=>$status,'apiError'=>$decoded['error']];
+          $errMsg = strtolower($decoded['error']['message'] ?? '');
+          // Graceful quota exceeded fallback: provide stub answer instead of raw error
+          if (strpos($errMsg, 'quota exceeded') !== false || strpos($errMsg, 'rate limit') !== false) {
+            $sources = $collectSources($message);
+            $fallback = "(quota reached) I'm temporarily unable to fetch a live AI answer. Here's a brief echo of your question plus related resources you can explore.";
+            $echo = mb_substr($message,0,400);
+            http_response_code(200);
+            echo json_encode([
+              'reply' => $fallback."\n\nYour query (truncated): ".$echo,
+              'note' => 'Gemini quota exceeded; using local fallback until quota resets.',
+              'sources' => $sources,
+              'quota_exceeded' => true
+            ]);
+            return;
+          }
+          if (intval($decoded['error']['code'] ?? 0) === 404) { continue; } else { http_response_code(502); echo json_encode(['error'=>$decoded['error']]); return; }
+        }
         $text = $decoded['candidates'][0]['content']['parts'][0]['text'] ?? ($decoded['candidates'][0]['output_text'] ?? ($decoded['text'] ?? null));
-        if ($text !== null) { echo json_encode(['reply'=>$text]); return; }
+        if ($text !== null) {
+          $sources = $collectSources($message);
+          echo json_encode(['reply'=>$text,'sources'=>$sources]);
+          return;
+        }
         $attempts[] = ['model'=>$m,'version'=>$ver,'status'=>$status,'note'=>'no text extracted'];
       }
     }
@@ -91,9 +145,30 @@ class ChatController {
         if ($e) { $attempts[] = ['model'=>$short,'version'=>$ver,'error'=>$e]; continue; }
         $dec = json_decode($r, true);
         if (json_last_error() !== JSON_ERROR_NONE) { $attempts[] = ['model'=>$short,'version'=>$ver,'status'=>$s,'raw'=>substr($r,0,200)]; continue; }
-        if (isset($dec['error'])) { $attempts[] = ['model'=>$short,'version'=>$ver,'status'=>$s,'apiError'=>$dec['error']]; if (intval($dec['error']['code'] ?? 0) === 404) { continue; } else { http_response_code(502); echo json_encode(['error'=>$dec['error']]); return; } }
+        if (isset($dec['error'])) {
+          $attempts[] = ['model'=>$short,'version'=>$ver,'status'=>$s,'apiError'=>$dec['error']];
+          $errMsg = strtolower($dec['error']['message'] ?? '');
+          if (strpos($errMsg, 'quota exceeded') !== false || strpos($errMsg, 'rate limit') !== false) {
+            $sources = $collectSources($message);
+            $fallback = "(quota reached) Live AI response unavailable right now. Refer to related resources below or retry soon.";
+            $echo = mb_substr($message,0,400);
+            http_response_code(200);
+            echo json_encode([
+              'reply' => $fallback."\n\nYour query (truncated): ".$echo,
+              'note' => 'Gemini quota exceeded; fallback answer served.',
+              'sources' => $sources,
+              'quota_exceeded' => true
+            ]);
+            return;
+          }
+          if (intval($dec['error']['code'] ?? 0) === 404) { continue; } else { http_response_code(502); echo json_encode(['error'=>$dec['error']]); return; }
+        }
         $text = $dec['candidates'][0]['content']['parts'][0]['text'] ?? ($dec['candidates'][0]['output_text'] ?? ($dec['text'] ?? null));
-        if ($text !== null) { echo json_encode(['reply'=>$text]); return; }
+        if ($text !== null) {
+          $sources = $collectSources($message);
+          echo json_encode(['reply'=>$text,'sources'=>$sources]);
+          return;
+        }
         $attempts[] = ['model'=>$short,'version'=>$ver,'status'=>$s,'note'=>'no text extracted'];
       }
     }

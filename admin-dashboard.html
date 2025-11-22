@@ -4,20 +4,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin Dashboard — Pharm D Mates</title>
+  <meta name="api-base" content="/api/index.php">
   <!-- Favicons -->
   <link rel="icon" type="image/jpeg" href="assets/images/logo.jpeg?v=20251109">
   <link rel="apple-touch-icon" href="assets/images/logo.jpeg?v=20251109">
   <link rel="shortcut icon" href="assets/images/logo.jpeg?v=20251109">
   <link rel="stylesheet" href="assets/css/styles.css?v=20251107">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20251107">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20251116a">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    /* Inline safety rule to guarantee the hamburger shows on small screens even if cached CSS is stale */
+    @media (max-width: 1024px){
+      .mobile-nav-toggle{ display:flex !important; }
+    }
+  </style>
 </head>
 <body class="admin-dashboard">
+  <!-- Mobile navigation toggle & overlay -->
+  <button id="mobileNavToggle" class="mobile-nav-toggle" aria-label="Open navigation" aria-expanded="false" aria-controls="adminSidebar">
+    <span class="material-icons">menu</span>
+  </button>
+  <div id="mobileNavOverlay" class="mobile-nav-overlay" hidden></div>
   <div class="dashboard-container">
-    <aside class="sidebar">
+    <aside class="sidebar" id="adminSidebar" aria-hidden="false">
       <div class="brand">
-        <div class="brand-logo" aria-hidden="true"></div>
+        <div class="brand-logo" aria-hidden="true"><img src="assets/images/logo.jpeg" alt="Logo"></div>
         <div>
           <h1>Admin Dashboard</h1>
           <div class="muted">Resource Hub Management</div>
@@ -34,7 +46,7 @@
         </a>
         <a href="#journals" class="nav-item">
           <span class="material-icons">article</span>
-          Journals
+          Article Publication
         </a>
         <a href="#student-approvals" class="nav-item">
           <span class="material-icons">how_to_reg</span>
@@ -43,6 +55,18 @@
         <a href="#students" class="nav-item">
           <span class="material-icons">group</span>
           Students
+        </a>
+        <a href="#news-updates" class="nav-item">
+          <span class="material-icons">campaign</span>
+          News & Updates
+        </a>
+        <a href="#contact-messages" class="nav-item">
+          <span class="material-icons">mail</span>
+          Contact Messages
+        </a>
+        <a href="#courses" class="nav-item">
+          <span class="material-icons">school</span>
+          Courses
         </a>
         <a href="#careers" class="nav-item">
           <span class="material-icons">work</span>
@@ -54,7 +78,7 @@
         </a>
         <a href="#important-questions" class="nav-item">
           <span class="material-icons">priority_high</span>
-          Important Questions
+          Important Notes
         </a>
         <a href="#questions" class="nav-item">
           <span class="material-icons">quiz</span>
@@ -63,6 +87,14 @@
         <a href="#resources" class="nav-item">
           <span class="material-icons">folder</span>
           Resources
+        </a>
+        <a href="#pyq-links" class="nav-item">
+          <span class="material-icons">link</span>
+          PYQ Links
+        </a>
+        <a href="#featured-students" class="nav-item">
+          <span class="material-icons">star</span>
+          Featured Students
         </a>
         <a href="index.html" class="nav-item" id="studentViewLink" target="_blank" rel="noopener">
           <span class="material-icons">school</span>
@@ -119,12 +151,12 @@
             </div>
             <div class="stat-card">
               <span class="material-icons">article</span>
-              <h3>Journals</h3>
+              <h3>Article Publication</h3>
               <p id="totalJournals">Loading...</p>
             </div>
             <div class="stat-card">
               <span class="material-icons">description</span>
-              <h3>Publications</h3>
+              <h3>Research Publications</h3>
               <p id="totalPublications">Loading...</p>
             </div>
             <div class="stat-card">
@@ -161,12 +193,12 @@
           </div>
         </section>
 
-        <!-- Journals Section -->
+        <!-- Article Publication Section (renamed from Journals) -->
         <section class="content-section" id="journals">
           <div class="section-header">
-            <h2>Journals Management</h2>
+            <h2>Article Publication Management</h2>
             <button class="btn primary" id="addJournalBtn">
-              <span class="material-icons">add</span> Add Journal
+              <span class="material-icons">add</span> Add Article Publication
             </button>
           </div>
           <div class="card">
@@ -239,6 +271,86 @@
           </div>
         </section>
 
+        <!-- News & Updates Section -->
+        <section class="content-section" id="news-updates">
+          <div class="section-header">
+            <h2>News & Updates</h2>
+            <button class="btn primary" id="addNewsBtn">
+              <span class="material-icons">add</span> Add News
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="newsTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Published</th>
+                    <th>Created</th>
+                    <th>Updated</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Contact Messages Section -->
+        <section class="content-section" id="contact-messages">
+          <div class="section-header">
+            <h2>Contact Messages</h2>
+            <p class="muted">Messages submitted via Contact Us page</p>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="contactMessagesTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Subject</th>
+                    <th>Message</th>
+                    <th>Created</th>
+                    <th>Reviewed</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- Courses Management Section -->
+        <section class="content-section" id="courses">
+          <div class="section-header">
+            <h2>Courses Management</h2>
+            <button class="btn primary" id="addCourseBtn">
+              <span class="material-icons">add</span> Add Course
+            </button>
+          </div>
+          <div class="card">
+            <div class="table-container">
+              <table id="coursesTable" class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Category</th>
+                    <th>Level</th>
+                    <th>Duration</th>
+                    <th>Active</th>
+                    <th>Created</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
         <!-- Career Section -->
         <section class="content-section" id="careers">
           <div class="section-header">
@@ -266,12 +378,12 @@
           </div>
         </section>
 
-        <!-- Important Questions Section -->
+        <!-- Important Notes Section -->
         <section class="content-section" id="important-questions">
           <div class="section-header">
-            <h2>Important Questions Management</h2>
+            <h2>Important Notes Management</h2>
             <button class="btn primary" id="addImportantQuestionBtn">
-              <span class="material-icons">add</span> Add Important Question
+              <span class="material-icons">add</span> Add Important Note
             </button>
           </div>
           <div class="card">
@@ -408,6 +520,128 @@
           </div>
         </section>
 
+        <!-- PYQ Links Management Section -->
+        <section class="content-section" id="pyq-links">
+          <div class="section-header">
+            <h2>PYQ Links Management</h2>
+            <p class="muted">Manage Previous Year Questions links for each year or globally</p>
+          </div>
+          <div class="grid two">
+            <div class="card" style="text-align:left;">
+              <h3>Add/Update PYQ Link</h3>
+              <form id="pyqLinkForm">
+                <div class="form-group">
+                  <label for="pyqYear">Year (Leave blank for global link)</label>
+                  <select id="pyqYear" name="year_id">
+                    <option value="">Global (All Years)</option>
+                    <option value="1">Pharm D - 1st Year</option>
+                    <option value="2">Pharm D - 2nd Year</option>
+                    <option value="3">Pharm D - 3rd Year</option>
+                    <option value="4">Pharm D - 4th Year</option>
+                    <option value="5">Pharm D - 5th Year</option>
+                    <option value="6">Pharm D - 6th Year</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="pyqLink">Link URL</label>
+                  <input type="url" id="pyqLink" name="link_url" required placeholder="https://drive.google.com/...">
+                </div>
+                <div class="form-group">
+                  <label for="pyqDesc">Description (Optional)</label>
+                  <input type="text" id="pyqDesc" name="description" placeholder="E.g., PYQ Drive folder for Year 3">
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn primary">Save Link</button>
+                  <button type="button" class="btn secondary" id="pyqCancelBtn">Clear</button>
+                </div>
+              </form>
+            </div>
+            <div class="card">
+              <h3>Existing PYQ Links</h3>
+              <div class="table-container">
+                <table id="pyqLinksTable" class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Year</th>
+                      <th>Link</th>
+                      <th>Description</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Featured Students Management Section -->
+        <section class="content-section" id="featured-students">
+          <div class="section-header">
+            <h2>Featured Students Management</h2>
+            <p class="muted">Showcase selected students in the Directory section with their profiles and social links</p>
+          </div>
+          <div class="grid two">
+            <div class="card" style="text-align:left;">
+              <h3>Add Featured Student</h3>
+              <form id="featuredStudentForm">
+                <div class="form-group">
+                  <label for="featStudentSelect">Select Student</label>
+                  <select id="featStudentSelect" name="user_id" required>
+                    <option value="">Loading students...</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="featProfilePhoto">Profile Photo URL</label>
+                  <input type="url" id="featProfilePhoto" name="profile_photo" placeholder="https://example.com/photo.jpg">
+                  <small class="muted">Direct URL to student's profile photo</small>
+                </div>
+                <div class="form-group">
+                  <label for="featLinkedin">LinkedIn URL</label>
+                  <input type="url" id="featLinkedin" name="linkedin_url" placeholder="https://linkedin.com/in/username">
+                </div>
+                <div class="form-group">
+                  <label for="featInstagram">Instagram URL</label>
+                  <input type="url" id="featInstagram" name="instagram_url" placeholder="https://instagram.com/username">
+                </div>
+                <div class="form-group">
+                  <label for="featEmail">Email</label>
+                  <input type="email" id="featEmail" name="email" placeholder="student@example.com">
+                </div>
+                <div class="form-group">
+                  <label for="featBio">Bio / Achievement</label>
+                  <textarea id="featBio" name="bio" rows="3" placeholder="Brief description or achievement"></textarea>
+                </div>
+                <div class="form-group">
+                  <label for="featDisplayOrder">Display Order</label>
+                  <input type="number" id="featDisplayOrder" name="display_order" value="0" min="0">
+                  <small class="muted">Lower numbers appear first</small>
+                </div>
+                <div class="form-actions">
+                  <button type="submit" class="btn primary">Add Featured Student</button>
+                  <button type="button" class="btn secondary" id="featCancelBtn">Clear</button>
+                </div>
+              </form>
+            </div>
+            <div class="card">
+              <h3>Current Featured Students</h3>
+              <div class="table-container">
+                <table id="featuredStudentsTable" class="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Course/Year</th>
+                      <th>Order</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
       </div>
       </div>
     </main>
@@ -523,12 +757,12 @@
         <div class="form-group resource-year-field">
           <label for="resourceYear">Year / System</label>
           <select id="resourceYear" name="year_id"></select>
-          <small class="muted">Optional for journals, publications, and career resources</small>
+          <small class="muted">Optional for article publications, research publications, and career resources</small>
         </div>
         <div class="form-group resource-subject-field">
           <label for="resourceSubject">Subject</label>
           <select id="resourceSubject" name="subject_id"></select>
-          <small class="muted">Optional for journals, publications, career resources, and case studies</small>
+          <small class="muted">Optional for article publications, research publications, career resources, and case studies</small>
         </div>
         <div class="form-group">
           <label for="resourceType">Resource Type</label>
@@ -536,10 +770,10 @@
             <option value="">Select Type</option>
             <option value="resource">General Resource</option>
             <option value="book">Book</option>
-            <option value="journal">Journal</option>
-            <option value="publication">Publication</option>
+            <option value="journal">Article Publication</option>
+            <option value="publication">Research Publication</option>
             <option value="career">Career Resource</option>
-            <option value="important-question">Important Question</option>
+            <option value="important-question">Important Note</option>
             <option value="question">Case Study</option>
             <option value="other">Other</option>
           </select>
@@ -569,6 +803,76 @@
         <div class="form-actions">
           <button type="button" class="btn secondary modal-close" data-modal="resourceModal">Cancel</button>
           <button type="submit" class="btn primary">Save Resource</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- News Modal -->
+  <div id="newsModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><span id="newsModalTitle">Add News Item</span></h3>
+        <span class="modal-close" data-modal="newsModal">&times;</span>
+      </div>
+      <form id="newsForm">
+        <div class="form-group">
+          <label for="newsTitle">Title</label>
+          <input type="text" id="newsTitle" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="newsBody">Body (Optional)</label>
+          <textarea id="newsBody" name="body" rows="4" placeholder="Details or announcement text..."></textarea>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="newsPublished" name="is_published" value="1" checked> Publish immediately</label>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn secondary modal-close" data-modal="newsModal">Cancel</button>
+          <button type="submit" class="btn primary">Save News</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Course Modal -->
+  <div id="courseModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3><span id="courseModalTitle">Add Course</span></h3>
+        <span class="modal-close" data-modal="courseModal">&times;</span>
+      </div>
+      <form id="courseForm">
+        <div class="form-group">
+          <label for="courseTitle">Title</label>
+          <input type="text" id="courseTitle" name="title" required>
+        </div>
+        <div class="form-group">
+          <label for="courseCategory">Category</label>
+          <input type="text" id="courseCategory" name="category" placeholder="e.g. Pharmacology, Clinical" >
+        </div>
+        <div class="form-group">
+          <label for="courseLevel">Level</label>
+          <input type="text" id="courseLevel" name="level" placeholder="Beginner / Intermediate / Advanced">
+        </div>
+        <div class="form-group">
+          <label for="courseDuration">Duration</label>
+          <input type="text" id="courseDuration" name="duration" placeholder="e.g. 6 weeks, Self-paced">
+        </div>
+        <div class="form-group">
+          <label for="courseApplyLink">Apply / Info Link</label>
+          <input type="url" id="courseApplyLink" name="apply_link" placeholder="https://...">
+        </div>
+        <div class="form-group">
+          <label for="courseSummary">Summary (Optional)</label>
+          <textarea id="courseSummary" name="summary" rows="3" placeholder="Short description of the course"></textarea>
+        </div>
+        <div class="form-group">
+          <label><input type="checkbox" id="courseActive" name="is_active" value="1" checked> Active</label>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn secondary modal-close" data-modal="courseModal">Cancel</button>
+          <button type="submit" class="btn primary">Save Course</button>
         </div>
       </form>
     </div>

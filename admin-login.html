@@ -89,7 +89,8 @@
 
         const json = await res.json();
         if (json && json.success) {
-          location.href = 'admin-dashboard.html';
+          // Use absolute path to avoid subfolder routing issues causing SPA fallback
+          location.href = '/admin-dashboard.html';
         } else {
           msg.textContent = (json && json.error) ? json.error : 'Login failed.';
         }

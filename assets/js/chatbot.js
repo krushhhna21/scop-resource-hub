@@ -68,8 +68,8 @@
   // Build UI
   const fab = document.createElement('button');
   fab.className = 'chatbot-fab';
-  fab.title = 'Assistant';
-  fab.setAttribute('aria-label','Assistant');
+  fab.title = 'Pharm D mates AI';
+  fab.setAttribute('aria-label','Pharm D mates AI');
   fab.id = 'chatbotFab';
   fab.style.display = 'flex';
   fab.style.visibility = 'visible';
@@ -142,10 +142,10 @@
   panel.style.display = 'none';
   panel.classList.add('chatbot-panel-edge');
   panel.setAttribute('role','dialog');
-  panel.setAttribute('aria-label','Assistant');
+  panel.setAttribute('aria-label','Pharm D mates AI');
   panel.innerHTML = `
     <div class="chatbot-header" style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-      <span>Assistant</span>
+      <span>Pharm D mates AI</span>
       <button type="button" id="chatbotClose" aria-label="Close assistant" style="background:transparent;border:0;color:#fff;font-size:18px;cursor:pointer;line-height:1;">×</button>
     </div>
     <div class="chatbot-body" id="chatbotBody"></div>
@@ -188,12 +188,21 @@
     body.scrollTop = body.scrollHeight;
   }
 
+  // Show a one-time welcome message when the assistant opens
+  let __welcomeShown = false;
+  function showWelcomeIfNeeded(){
+    try { /* do nothing */ } catch(_){}
+    if (__welcomeShown) return;
+    appendMessage('bot', 'Welcome to Pharm D Mates AI');
+    __welcomeShown = true;
+  }
+
   let activeRequests = 0;
   async function sendMessage(text){
     activeRequests++;
     fab.classList.add('speaking');
     appendMessage('user', text);
-    appendMessage('bot','...');
+    appendMessage('bot','✍️ Searching and generating answer...');
     const bodyEl = qs('#chatbotBody');
     const lastBot = bodyEl.querySelector('.chatbot-msg.bot:last-child .bubble');
     try{
@@ -211,8 +220,23 @@
       const data = ctype.includes('application/json') ? await resp.json() : { reply: await resp.text() };
       if (data.reply) {
         lastBot.textContent = data.reply;
+        if (Array.isArray(data.sources) && data.sources.length) {
+          // Append a second bot message with clickable source links
+          const srcLines = data.sources.map(s => {
+            const t = s.title || 'Untitled';
+            const link = s.link ? s.link : '';
+            return link ? `• ${t} → ${link}` : `• ${t}`;
+          }).join('\n');
+          appendMessage('bot', 'Related Resources:\n' + srcLines);
+        }
       } else if (data.error) {
-        lastBot.textContent = 'Error: ' + data.error;
+        const err = data.error;
+        if (typeof err === 'object' && err) {
+          const msg = err.message || err.status || err.code || JSON.stringify(err);
+          lastBot.textContent = 'Error: ' + msg;
+        } else {
+          lastBot.textContent = 'Error: ' + err;
+        }
       } else {
         lastBot.textContent = JSON.stringify(data);
       }
@@ -233,6 +257,8 @@
   panel.classList.remove('chatbot-panel-edge');
   panel.classList.add('centered');
   panel.style.display = 'flex';
+  // Welcome message (once per page load)
+  showWelcomeIfNeeded();
     // Inline fallback styles (in case stylesheet not yet injected)
     if(!document.getElementById('chatbot-centered-styles')){
       panel.style.right='auto';
@@ -276,6 +302,8 @@
   panel.classList.remove('centered');
   panel.classList.add('chatbot-panel-edge');
   panel.style.display = 'flex';
+    // Welcome message (once per page load)
+    showWelcomeIfNeeded();
     setTimeout(()=>{ const input = qs('#chatbotInput'); if (input) input.focus(); }, 80);
     cleanupTips();
   }

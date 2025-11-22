@@ -124,6 +124,7 @@
   height: 100vh;
   overflow-y: auto;
   z-index: 200;
+  top:0; left:0;
 }
 
 .sidebar .brand {
@@ -519,27 +520,24 @@
 
 /* Responsive Design */
 @media (max-width: 1024px) {
-  .admin-dashboard .dashboard-container {
-    grid-template-columns: 1fr;
-  }
-
+  /* Off‑canvas behavior */
+  .admin-dashboard .dashboard-container { grid-template-columns: 1fr; }
   .admin-dashboard .sidebar {
-    display: none;
+    transform: translateX(-100%);
+    transition: transform .3s ease;
+    box-shadow: 0 0 0 0 rgba(0,0,0,0);
   }
-
-  .admin-dashboard .dashboard-main {
-    margin-left: 0;
-    padding: 1rem;
-    align-items: stretch;
-    text-align: left;
-  }
+  .admin-dashboard .sidebar.open { transform: translateX(0); box-shadow: 0 20px 60px -10px rgba(0,0,0,.35); }
+  .mobile-nav-toggle { display:flex; }
+  .admin-dashboard .dashboard-main { margin-left: 0; padding: 1rem 1.25rem 2.5rem; }
+  .sidebar-nav { padding-bottom: 4rem; }
 }
 
 @media (max-width: 900px) {
   .admin-dashboard .quick-stats { grid-template-columns: 1fr; gap: 1rem; }
   .admin-dashboard .stat-card { justify-content: flex-start; }
-  .admin-dashboard .sidebar { width: 100%; position: relative; height: auto; }
-  .admin-dashboard .dashboard-main { margin-left: 0; padding: 1rem; }
+  /* Keep sidebar offcanvas; do not expand full width */
+  .admin-dashboard .dashboard-main { margin-left: 0; padding: 1rem 1.25rem 2.5rem; }
 }
 
 @media (max-width: 768px) {
@@ -550,6 +548,48 @@
   .quick-stats {
     grid-template-columns: 1fr;
   }
+  .nav-item { padding: .85rem .9rem; font-size:.85rem; }
+  .nav-item .material-icons { padding:6px; }
+}
+
+/* Mobile nav toggle button */
+.mobile-nav-toggle {
+  position: fixed;
+  top: 12px;
+  left: 12px;
+  z-index: 250;
+  background: #1e293b;
+  color: #fff;
+  border: 1px solid #334155;
+  border-radius: 12px;
+  padding: 10px 12px;
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 6px 18px -4px rgba(0,0,0,.35);
+}
+.mobile-nav-toggle .material-icons { font-size: 22px; }
+.mobile-nav-toggle[aria-expanded="true"] { background:#2563eb; border-color:#1d4ed8; }
+
+/* Overlay behind offcanvas */
+.mobile-nav-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 150;
+  opacity: 0;
+  transition: opacity .3s ease;
+}
+.mobile-nav-overlay.active { opacity:1; }
+
+/* Improve scroll usability inside offcanvas */
+@media (max-width: 1024px) {
+  .admin-dashboard .sidebar { overscroll-behavior: contain; scrollbar-gutter: stable; }
+  .sidebar-nav { overflow-y:auto; }
 }
 
 /* Animations */

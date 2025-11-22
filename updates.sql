@@ -95,3 +95,39 @@ ALTER TABLE resources ADD CONSTRAINT fk_resource_year FOREIGN KEY (year_id) REFE
 
 -- Make subject_id nullable to allow questions without subjects
 ALTER TABLE resources MODIFY COLUMN subject_id INT(11) NULL;
+
+-- News & Updates table (admin-managed announcements)
+CREATE TABLE IF NOT EXISTS news_updates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    body TEXT NULL,
+    is_published TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    published_at TIMESTAMP NULL DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Contact messages table (public submissions via Contact Us tab)
+CREATE TABLE IF NOT EXISTS contact_messages (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(128) NOT NULL,
+    email VARCHAR(255) NULL,
+    subject VARCHAR(255) NULL,
+    message TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_reviewed TINYINT(1) DEFAULT 0
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Courses table (admin-managed course catalog)
+CREATE TABLE IF NOT EXISTS courses (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    category VARCHAR(128) NULL,
+    summary TEXT NULL,
+    level VARCHAR(64) NULL, -- e.g., Beginner, Intermediate, Advanced
+    duration VARCHAR(64) NULL, -- e.g., "6 weeks", "Self-paced"
+    apply_link VARCHAR(512) NULL,
+    is_active TINYINT(1) DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

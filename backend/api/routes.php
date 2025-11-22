@@ -90,6 +90,19 @@ function ctrl_disc() {
   static $o = null; global $pdo; if ($o === null) { require_once __DIR__ . '/controllers/DiscussionController.php'; $o = new DiscussionController($pdo); } return $o; }
 function ctrl_auth() {
   static $o = null; global $pdo, $config; if ($o === null) { require_once __DIR__ . '/controllers/AuthController.php'; $o = new AuthController($pdo, $config); } return $o; }
+function ctrl_news() {
+  static $o = null; global $pdo; if ($o === null) { require_once __DIR__ . '/controllers/NewsController.php'; $o = new NewsController($pdo); } return $o; }
+function ctrl_contact() {
+  static $o = null; global $pdo; if ($o === null) { require_once __DIR__ . '/controllers/ContactController.php'; $o = new ContactController($pdo); } return $o; }
+function ctrl_courses() {
+  static $o = null; global $pdo; if ($o === null) {
+    $path = __DIR__ . '/controllers/CoursesController.php';
+    if (!file_exists($path)) {
+      // Provide clearer diagnostic than raw require_once warning
+      throw new RuntimeException('CoursesController missing on server. Deploy file backend/api/controllers/CoursesController.php');
+    }
+    require_once $path; $o = new CoursesController($pdo); }
+  return $o; }
 
 $action = $_GET['action'] ?? $_POST['action'] ?? null;
 
@@ -327,6 +340,106 @@ try {
       $chat->chat();
       break;
 
+    // News (public & admin)
+    case 'list_news':
+      $news = ctrl_news();
+      $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 30;
+      json_ok($news->listPublic($limit));
+      break;
+    case 'admin_list_news':
+      $news = ctrl_news();
+      json_ok($news->listAdmin());
+      break;
+    case 'admin_create_news':
+      $news = ctrl_news();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $title = trim($payload['title'] ?? '');
+      $body = $payload['body'] ?? '';
+      $published = isset($payload['is_published']) ? (intval($payload['is_published']) === 1) : false;
+      json_ok($news->create($title,$body,$published));
+      break;
+    case 'admin_update_news':
+      $news = ctrl_news();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $id = intval($payload['id'] ?? 0);
+      if(!$id) json_err('id required');
+      $title = trim($payload['title'] ?? '');
+      $body = $payload['body'] ?? '';
+      $published = isset($payload['is_published']) ? (intval($payload['is_published']) === 1) : false;
+      json_ok($news->update($id,$title,$body,$published));
+      break;
+    case 'admin_delete_news':
+      $news = ctrl_news();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $id = intval($payload['id'] ?? 0);
+      if(!$id) json_err('id required');
+      json_ok($news->delete($id));
+      break;
+
+    // Contact messages
+    case 'submit_contact':
+      $contact = ctrl_contact();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $name = trim($payload['name'] ?? '');
+      $email = trim($payload['email'] ?? '');
+      $subject = trim($payload['subject'] ?? '');
+      $message = trim($payload['message'] ?? '');
+      json_ok($contact->submit($name,$email,$subject,$message));
+      break;
+    case 'admin_list_contacts':
+      $contact = ctrl_contact();
+      json_ok($contact->listAdmin());
+      break;
+    case 'admin_mark_contact_reviewed':
+      $contact = ctrl_contact();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $id = intval($payload['id'] ?? 0); if(!$id) json_err('id required');
+      $rev = isset($payload['is_reviewed']) ? (intval($payload['is_reviewed'])===1) : true;
+      json_ok($contact->markReviewed($id,$rev));
+      break;
+
+    // Courses (public & admin)
+    case 'list_courses':
+      $courses = ctrl_courses();
+      $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 50;
+      json_ok($courses->listPublic($limit));
+      break;
+    case 'admin_list_courses':
+      $courses = ctrl_courses();
+      json_ok($courses->listAdmin());
+      break;
+    case 'admin_create_course':
+      $courses = ctrl_courses();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $title = trim($payload['title'] ?? '');
+      $category = trim($payload['category'] ?? '');
+      $summary = $payload['summary'] ?? '';
+      $level = trim($payload['level'] ?? '');
+      $duration = trim($payload['duration'] ?? '');
+      $apply_link = trim($payload['apply_link'] ?? '');
+      $is_active = isset($payload['is_active']) ? (intval($payload['is_active']) === 1) : 1;
+      json_ok($courses->create($title,$category,$summary,$level,$duration,$apply_link,$is_active));
+      break;
+    case 'admin_update_course':
+      $courses = ctrl_courses();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $id = intval($payload['id'] ?? 0); if(!$id) json_err('id required');
+      $title = trim($payload['title'] ?? '');
+      $category = trim($payload['category'] ?? '');
+      $summary = $payload['summary'] ?? '';
+      $level = trim($payload['level'] ?? '');
+      $duration = trim($payload['duration'] ?? '');
+      $apply_link = trim($payload['apply_link'] ?? '');
+      $is_active = isset($payload['is_active']) ? (intval($payload['is_active']) === 1) : 1;
+      json_ok($courses->update($id,$title,$category,$summary,$level,$duration,$apply_link,$is_active));
+      break;
+    case 'admin_delete_course':
+      $courses = ctrl_courses();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $id = intval($payload['id'] ?? 0); if(!$id) json_err('id required');
+      json_ok($courses->delete($id));
+      break;
+
     // Publications
     case 'list_publications':
       $pub = ctrl_pub();
@@ -366,6 +479,11 @@ try {
       $q = $_GET['q'] ?? null;
       $batch = isset($_GET['batch']) ? intval($_GET['batch']) : null;
       json_ok($dir->listStudents($q, $batch));
+      break;
+    case 'list_featured_students':
+      // Public endpoint to get featured students for directory showcase
+      $dir = ctrl_dir();
+      json_ok($dir->listFeaturedStudents());
       break;
     case 'upsert_student_profile':
       $dir = ctrl_dir();
@@ -445,6 +563,82 @@ try {
       $content = trim($payload['content'] ?? '');
       if ($content === '') json_err('content required');
       json_ok($disc->createPost($channelId, $parentId, $authorId, $content));
+      break;
+
+    // PYQ Links Management
+    case 'list_pyq_links':
+      $admin = ctrl_admin();
+      json_ok($admin->listPyqLinks());
+      break;
+    case 'upsert_pyq_link':
+      $admin = ctrl_admin();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $yearId = isset($payload['year_id']) ? intval($payload['year_id']) : null;
+      $linkUrl = trim($payload['link_url'] ?? '');
+      $description = trim($payload['description'] ?? '');
+      if ($linkUrl === '') json_err('link_url required');
+      json_ok($admin->upsertPyqLink($yearId, $linkUrl, $description));
+      break;
+    case 'delete_pyq_link':
+      $admin = ctrl_admin();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $id = intval($payload['id'] ?? 0);
+      if (!$id) json_err('id required');
+      json_ok($admin->deletePyqLink($id));
+      break;
+    
+    // Featured Students Management (Admin)
+    case 'admin_list_featured_students':
+      $admin = ctrl_admin();
+      json_ok($admin->listFeaturedStudents());
+      break;
+    case 'admin_add_featured_student':
+      $admin = ctrl_admin();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $userId = intval($payload['user_id'] ?? 0);
+      if (!$userId) json_err('user_id required');
+      $profilePhoto = $payload['profile_photo'] ?? null;
+      $linkedin = $payload['linkedin_url'] ?? null;
+      $instagram = $payload['instagram_url'] ?? null;
+      $email = $payload['email'] ?? null;
+      $bio = $payload['bio'] ?? null;
+      $displayOrder = isset($payload['display_order']) ? intval($payload['display_order']) : 0;
+      json_ok($admin->addFeaturedStudent($userId, $profilePhoto, $linkedin, $instagram, $email, $bio, $displayOrder));
+      break;
+    case 'admin_update_featured_student':
+      $admin = ctrl_admin();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $id = intval($payload['id'] ?? 0);
+      if (!$id) json_err('id required');
+      $profilePhoto = $payload['profile_photo'] ?? null;
+      $linkedin = $payload['linkedin_url'] ?? null;
+      $instagram = $payload['instagram_url'] ?? null;
+      $email = $payload['email'] ?? null;
+      $bio = $payload['bio'] ?? null;
+      $displayOrder = isset($payload['display_order']) ? intval($payload['display_order']) : null;
+      json_ok($admin->updateFeaturedStudent($id, $profilePhoto, $linkedin, $instagram, $email, $bio, $displayOrder));
+      break;
+    case 'admin_delete_featured_student':
+      $admin = ctrl_admin();
+      $payload = json_decode(file_get_contents('php://input'), true) ?: $_POST;
+      $id = intval($payload['id'] ?? 0);
+      if (!$id) json_err('id required');
+      json_ok($admin->deleteFeaturedStudent($id));
+      break;
+    
+    case 'get_pyq_link':
+      // Public endpoint for fetching PYQ link by year (or global)
+      $yearId = isset($_GET['year_id']) ? intval($_GET['year_id']) : null;
+      $stmt = $pdo->prepare('SELECT link_url FROM pyq_links WHERE year_id = ? AND is_active = 1 LIMIT 1');
+      $stmt->execute([$yearId]);
+      $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      if (!$row) {
+        // Fallback to global link (year_id NULL)
+        $stmt = $pdo->prepare('SELECT link_url FROM pyq_links WHERE year_id IS NULL AND is_active = 1 LIMIT 1');
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+      }
+      json_ok(['link_url' => $row ? $row['link_url'] : null]);
       break;
 
     // TEMPORARY: Debug tail endpoint (remove after troubleshooting)

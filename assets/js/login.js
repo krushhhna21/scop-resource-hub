@@ -19,6 +19,7 @@
   const yearInput = document.getElementById('yearInput');
   const emailDisplay = document.getElementById('emailDisplay');
   const continueBtn = document.getElementById('continueBtn');
+  const googleBtnContainer = document.getElementById('googleButton');
 
   let lastCredential = null;
   let lastEmail = null;
@@ -27,6 +28,7 @@
 
   // Popup fallback: if GSI credential not delivered we open an OAuth implicit flow
   function openOAuthPopup(){
+    if (!fieldsValid()) { setMessage('Please complete your name, course, and year before verifying with Google.'); return; }
     if (popupInProgress) return;
     popupInProgress = true;
     setMessage('Opening Google sign-in popup…');
@@ -75,6 +77,27 @@
 
   function setMessage(t){ if(msg) msg.textContent = t; }
 
+  function fieldsValid(){
+    return !!((nameInput?.value?.trim()||'').length && (courseInput?.value||'').length && (yearInput?.value||'').length);
+  }
+
+  function updateGoogleButtonState(){
+    const ok = fieldsValid();
+    if (googleBtnContainer){
+      if (ok){
+        googleBtnContainer.style.opacity = '';
+        googleBtnContainer.style.pointerEvents = '';
+        googleBtnContainer.removeAttribute('aria-disabled');
+        googleBtnContainer.removeAttribute('title');
+      } else {
+        googleBtnContainer.style.opacity = '.5';
+        googleBtnContainer.style.pointerEvents = 'none';
+        googleBtnContainer.setAttribute('aria-disabled','true');
+        googleBtnContainer.setAttribute('title','Enter your name and select course and year to enable Google verification');
+      }
+    }
+  }
+
   function enableContinue(){
     const ok = !!(lastCredential && (nameInput?.value?.trim()||'').length && (courseInput?.value||'').length && (yearInput?.value||'').length);
     if (continueBtn) {
@@ -116,6 +139,7 @@
       google.accounts.id.renderButton(btn, { theme:'filled_blue', size:'large', shape:'pill', text:'continue_with' });
       requestAnimationFrame(()=> btn.classList.add('ready'));
     }
+    updateGoogleButtonState();
   }
 
   function injectGIS(){
@@ -164,9 +188,12 @@
   document.addEventListener('DOMContentLoaded', ()=>{
     injectGIS();
     if (continueBtn) continueBtn.addEventListener('click', submit);
-    if (nameInput) nameInput.addEventListener('input', enableContinue);
-    if (courseInput) courseInput.addEventListener('change', enableContinue);
-    if (yearInput) yearInput.addEventListener('change', enableContinue);
+    if (nameInput) nameInput.addEventListener('input', ()=>{ enableContinue(); updateGoogleButtonState(); });
+    if (courseInput) courseInput.addEventListener('change', ()=>{ enableContinue(); updateGoogleButtonState(); });
+    if (yearInput) yearInput.addEventListener('change', ()=>{ enableContinue(); updateGoogleButtonState(); });
+    // Ensure default course is Pharm D if not pre-selected
+    try { if (courseInput && !courseInput.value) courseInput.value = 'Pharm D'; } catch(_){}
+    updateGoogleButtonState();
     try {
       const els = document.querySelectorAll('.reveal');
       els.forEach(el => { void el.offsetWidth; el.style.animationPlayState = 'running'; });

@@ -55,7 +55,8 @@ body.login-page{
 @keyframes cardIn{ to{ transform: none; opacity:1; } }
 
 .login-header{ display:flex; align-items:center; gap:14px; }
-.login-header .brand-mark{ width:64px; height:64px; border-radius:16px; overflow:hidden; box-shadow:0 10px 26px rgba(0,0,0,.35); }
+.login-header .brand-mark{ width:80px; height:80px; border-radius:50%; overflow:hidden; box-shadow:0 10px 26px rgba(0,0,0,.35); object-fit:cover; }
+@media (max-width: 420px){ .login-header .brand-mark{ width:64px; height:64px; } }
 .login-header h1{ margin:0; font-size:1.6rem; letter-spacing:.2px; }
 .login-sub{ color:#c9d7eb; text-shadow:0 1px 0 rgba(0,0,0,.2); }
 
@@ -89,9 +90,10 @@ select.input{
 select.input option{ background:#0b2b68; color:#eaf2ff; }
 select.input:focus{ background-color: rgba(255,255,255,.18) !important; }
 
-/* Grid spacing for a cleaner layout */
-.login-card .grid.two{ row-gap: 14px; column-gap: 16px !important; }
+/* Grid spacing and 2-column layout inside the login card */
+.login-card .grid.two{ display:grid; grid-template-columns: 1fr 1fr; align-items:flex-start; row-gap: 14px; column-gap: 16px !important; }
 .login-card .grid.two > div{ min-width: 0; }
+@media (max-width: 640px){ .login-card .grid.two{ grid-template-columns: 1fr; } }
 
 /* Buttons */
 .btn.primary{ background: linear-gradient(135deg, #3b82f6, #7c4dff); border:none; }
@@ -119,6 +121,45 @@ select.input:focus{ background-color: rgba(255,255,255,.18) !important; }
 /* Google button wrapper to allow entry animation */
 #googleButton{ transform: translateY(6px); opacity:.001; transition: transform .35s ease, opacity .35s ease; }
 #googleButton.ready{ transform:none; opacity:1; }
+
+/* Prominent callout for instructions */
+.callout{
+  display:block;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.28);
+  background: radial-gradient(140% 200% at 0% 0%, rgba(34,211,238,.35) 0%, rgba(255,255,255,.14) 60%);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 1.02rem;
+  line-height: 1.35;
+  text-shadow: 0 1px 0 rgba(0,0,0,.25);
+}
+.callout.important{
+  position: relative;
+  box-shadow: inset 0 0 0 1px rgba(34,211,238,.55), 0 10px 30px rgba(0,0,0,.32);
+  border-color: rgba(34,211,238,.65);
+}
+.callout.important::before{
+  content: "\26A0"; /* warning symbol */
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px; height: 24px;
+  display: grid; place-items: center;
+  color: #02213e;
+  background: #22d3ee;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.25);
+}
+.callout.important{ padding-left: 46px; }
+.callout.important strong{ color:#fff; text-decoration: underline; text-underline-offset: 3px; }
+.callout.important.emph{ animation: calloutPulse 2.4s ease-in-out infinite; }
+@keyframes calloutPulse{
+  0%,100%{ box-shadow: inset 0 0 0 1px rgba(34,211,238,.35), 0 8px 24px rgba(0,0,0,.28);} 
+  50%{ box-shadow: inset 0 0 0 2px rgba(34,211,238,.55), 0 10px 28px rgba(0,0,0,.32);} 
+}
 
 /* Small helper grid tweak for wider screens */
 @media (min-width: 720px){

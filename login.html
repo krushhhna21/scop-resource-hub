@@ -44,23 +44,24 @@
           <img class="brand-mark" src="assets/images/logo.jpeg" alt="Logo">
           <div>
             <h1>Login</h1>
-            <div class="login-sub">Sign in with your college Gmail, then confirm your details</div>
+            <div class="login-sub">Fill your details below, then verify with your college Gmail</div>
           </div>
         </div>
 
-        <div class="grid two" style="gap:1rem;align-items:flex-start;">
+  <!-- Prominent instruction placed near the top for visibility -->
+        <div id="loginMessage" class="callout important emph reveal" aria-live="polite" style="margin:.5rem 0 1rem;">
+          <strong>Important:</strong> Enter your name, select course and year, then click the Google button to verify and press Continue.
+        </div>
+
+  <div class="grid two" style="gap:1rem;align-items:flex-start;">
           <div class="reveal delay-1">
             <label class="label">Full name</label>
             <input id="nameInput" type="text" class="input" placeholder="Your name">
           </div>
           <div class="reveal delay-2">
             <label class="label">Course</label>
-            <select id="courseInput" class="input">
-              <option value="">Select</option>
-              <option value="Pharm D">Pharm D</option>
-              <option value="B.Pharm">B.Pharm</option>
-              <option value="M.Pharm">M.Pharm</option>
-              <option value="Other">Other</option>
+            <select id="courseInput" class="input" aria-required="true" disabled>
+              <option value="Pharm D" selected>Pharm D</option>
             </select>
           </div>
         </div>
@@ -68,7 +69,7 @@
         <div class="grid two" style="gap:1rem;margin-top:.75rem;">
           <div class="reveal delay-2">
             <label class="label">Year</label>
-            <select id="yearInput" class="input">
+            <select id="yearInput" class="input" aria-required="true">
               <option value="">Select year</option>
               <option value="1">1st Year</option>
               <option value="2">2nd Year</option>
@@ -87,12 +88,12 @@
         <div class="divider reveal" style="margin-top:1rem;"><span>Verify with Google</span></div>
 
         <div class="reveal" style="display:flex;align-items:center;gap:1rem;margin-top:.25rem;flex-wrap:wrap;">
-          <div id="googleButton"></div>
+          <div id="googleButton" title="Enter your name and select course and year to enable Google verification" aria-disabled="true" style="opacity:.5;pointer-events:none;"></div>
           <button id="continueBtn" class="btn primary" disabled>Continue</button>
           <a href="index.html" class="btn ghost">Back to Home</a>
         </div>
 
-        <div id="loginMessage" class="muted reveal" style="margin-top:1rem;">First click the Google button, then press Continue.</div>
+        
       </div>
     </div>
   </div>

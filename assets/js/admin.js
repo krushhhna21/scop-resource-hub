@@ -30,10 +30,12 @@ async function ensureAuthenticated() {
 
 // Initialize the admin dashboard
 document.addEventListener('DOMContentLoaded', async function() {
+    // Always wire UI first so navigation/hamburger works even if auth check has issues
+    initializeNavigation();
+    
     const authed = await ensureAuthenticated();
     if (!authed) return; // ensureAuthenticated will redirect
     
-    initializeNavigation();
     initializeModals();
     initializeForms();
     // Pages editor removed from UI
@@ -115,6 +117,30 @@ async function api(action, params = {}, method = 'GET', formData = null) {
 function initializeNavigation() {
     const navItems = document.querySelectorAll('.nav-item');
     const sections = document.querySelectorAll('.content-section');
+    const sidebar = document.getElementById('adminSidebar');
+    const mobileToggle = document.getElementById('mobileNavToggle');
+    const overlay = document.getElementById('mobileNavOverlay');
+
+    function closeMobileNav(){
+        if(sidebar) sidebar.classList.remove('open');
+        if(mobileToggle){ mobileToggle.setAttribute('aria-expanded','false'); }
+        if(overlay){ overlay.classList.remove('active'); overlay.hidden = true; }
+        document.body.style.overflow='';
+    }
+    function openMobileNav(){
+        if(sidebar) sidebar.classList.add('open');
+        if(mobileToggle){ mobileToggle.setAttribute('aria-expanded','true'); }
+        if(overlay){ overlay.hidden = false; requestAnimationFrame(()=> overlay.classList.add('active')); }
+        document.body.style.overflow='hidden';
+    }
+    if(mobileToggle){
+        mobileToggle.addEventListener('click', ()=>{
+            const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
+            if(expanded) closeMobileNav(); else openMobileNav();
+        });
+    }
+    if(overlay){ overlay.addEventListener('click', closeMobileNav); }
+    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape') closeMobileNav(); });
     
     navItems.forEach(nav => {
         nav.addEventListener('click', (e) => {
@@ -144,8 +170,20 @@ function initializeNavigation() {
                         loadCareers();
                     } else if (target === 'journals') {
                         loadJournals();
+                    } else if (target === 'pyq-links') {
+                        loadPyqLinks();
+                    } else if (target === 'featured-students') {
+                        loadFeaturedStudents();
+                    } else if (target === 'news-updates') {
+                        loadNewsAdmin();
+                    } else if (target === 'contact-messages') {
+                        loadContactMessagesAdmin();
+                    } else if (target === 'courses') {
+                        loadCoursesAdmin();
                     }
                 } catch (_) {}
+                // Close mobile nav after selection
+                closeMobileNav();
             }
         });
     });
@@ -161,15 +199,27 @@ function initializeModals() {
     const addImportantQuestionBtn = document.getElementById('addImportantQuestionBtn');
     const addQuestionBtn = document.getElementById('addQuestionBtn');
     const addResourceBtn = document.getElementById('addResourceBtn');
+    const addNewsBtn = document.getElementById('addNewsBtn');
+    const addCourseBtn = document.getElementById('addCourseBtn');
     
     if (addBookBtn) addBookBtn.addEventListener('click', () => openModal('bookModal'));
-    // Journals, Publications, Career, and Important Questions now use the enhanced resource modal
+    // Journals, Publications, Career, and Important Notes now use the enhanced resource modal
     if (addJournalBtn) addJournalBtn.addEventListener('click', () => openResourceModal('journal'));
     if (addPublicationBtn) addPublicationBtn.addEventListener('click', () => openResourceModal('publication'));
     if (addCareerBtn) addCareerBtn.addEventListener('click', () => openResourceModal('career'));
     if (addImportantQuestionBtn) addImportantQuestionBtn.addEventListener('click', () => openResourceModal('important-question'));
     if (addQuestionBtn) addQuestionBtn.addEventListener('click', () => openModal('questionModal'));
     if (addResourceBtn) addResourceBtn.addEventListener('click', () => openModal('resourceModal'));
+    if (addNewsBtn) addNewsBtn.addEventListener('click', () => {
+        document.getElementById('newsModalTitle').textContent = 'Add News Item';
+        document.getElementById('newsForm').dataset.editId = '';
+        openModal('newsModal');
+    });
+    if (addCourseBtn) addCourseBtn.addEventListener('click', () => {
+        document.getElementById('courseModalTitle').textContent = 'Add Course';
+        document.getElementById('courseForm').dataset.editId = '';
+        openModal('courseModal');
+    });
     
     // Close modal functionality
     document.querySelectorAll('.modal-close').forEach(closeBtn => {
@@ -241,10 +291,10 @@ function openResourceModal(resourceType) {
         const titleElement = modal.querySelector('#resourceModalTitle');
         if (titleElement) {
             const titles = {
-                'journal': 'Add New Journal',
-                'publication': 'Add New Publication', 
+                    'journal': 'Add New Article Publication',
+                    'publication': 'Add New Research Publication', 
                 'career': 'Add New Career Resource',
-                'important-question': 'Add New Important Question',
+                'important-question': 'Add New Important Note',
                 'question': 'Add New Case Study'
             };
             titleElement.textContent = titles[resourceType] || 'Add New Resource';
@@ -392,9 +442,15 @@ function initializeForms() {
     }
 }
 
-// Extra admin forms: vacancies, discussions
+// Extra admin forms: vacancies, discussions, PYQ links, featured students
 let CURRENT_CHANNEL_ID = null;
 function initializeAdminExtras() {
+    // Initialize PYQ Links form
+    initializePyqLinksForm();
+    
+    // Initialize Featured Students form
+    initializeFeaturedStudentsForm();
+    
     // Vacancy form
     const vacancyForm = document.getElementById('vacancyForm');
     if (vacancyForm) {
@@ -596,7 +652,7 @@ async function handleJournalSubmit(e) {
     try {
         const result = await api('admin_create_resource', {}, 'POST', formData);
         if (result.success) {
-            alert('Journal added successfully!');
+                alert('Article Publication added successfully!');
             closeModal('journalModal');
             loadJournals();
         } else {
@@ -710,6 +766,10 @@ async function loadDashboardData() {
         loadStudents();
     loadVacanciesAdmin();
     // Discussions removed
+        // Initial prefetch of new sections (optional lightweight)
+        loadNewsAdmin();
+        loadContactMessagesAdmin();
+        loadCoursesAdmin();
         
     } catch (error) {
         console.error('Error loading dashboard data:', error);
@@ -783,14 +843,14 @@ async function loadJournals() {
                         <td>${journal.description || '-'}</td>
                         <td>${journal.year_name || '-'}</td>
                         <td>${journal.subject_name || '-'}</td>
-                        <td><span class="badge journal">Journal</span></td>
+                            <td><span class="badge journal">Article Publication</span></td>
                         <td>
                             <button class="btn danger small" onclick="deleteResource(${journal.id}, 'journal')">Delete</button>
                         </td>
                     </tr>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No journals found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No article publications found</td></tr>';
             }
         }
         
@@ -823,7 +883,7 @@ async function loadPublications() {
                     </tr>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No publications found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No research publications found</td></tr>';
             }
         }
         
@@ -1027,7 +1087,7 @@ async function loadCareers() {
 async function loadImportantQuestions() {
     try {
         const resources = await api('admin_list_resources');
-        const importantQuestions = resources.filter(resource => resource.resource_type === 'important-question');
+    const importantQuestions = resources.filter(resource => resource.resource_type === 'important-question');
         const tbody = document.querySelector('#importantQuestionsTable tbody');
         
         if (tbody) {
@@ -1038,18 +1098,18 @@ async function loadImportantQuestions() {
                         <td>${question.description || '-'}</td>
                         <td>${question.year_name || '-'}</td>
                         <td>${question.subject_name || '-'}</td>
-                        <td><span class="badge important-question">Important Question</span></td>
+                        <td><span class="badge important-question">Important Note</span></td>
                         <td>
                             <button class="btn danger small" onclick="deleteResource(${question.id}, 'important-question')">Delete</button>
                         </td>
                     </tr>
                 `).join('');
             } else {
-                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No important questions found</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center">No important notes found</td></tr>';
             }
         }
     } catch (error) {
-        console.error('Error loading important questions:', error);
+    console.error('Error loading important notes:', error);
     }
 }
 
@@ -1094,9 +1154,9 @@ async function loadResources() {
                         <td>${resource.resource_type || 'resource'}</td>
                         <td>${resource.subject_name || '-'}</td>
                         <td>${resource.uploaded_at || '-'}</td>
-                        <td>
-                            <button class="btn danger small" onclick="deleteResource(${resource.id}, '${resource.resource_type}')">Delete</button>
-                        </td>
+                            <td>
+                                <button class="btn danger small" onclick="deleteResource(${resource.id}, '${resource.resource_type}')">Delete</button>
+                            </td>
                     </tr>
                 `).join('');
             } else {
@@ -1227,4 +1287,502 @@ async function deleteResource(id, type) {
 
 // Remove the individual delete functions since we're using the unified deleteResource function
 
+// PYQ Links Management
+async function loadPyqLinks() {
+    try {
+        const links = await api('list_pyq_links');
+        const tbody = document.querySelector('#pyqLinksTable tbody');
+        if (!tbody) return;
+        
+        if (links && links.length > 0) {
+            tbody.innerHTML = links.map(link => {
+                const yearLabel = link.year_name || 'Global (All Years)';
+                const linkPreview = link.link_url.length > 40 ? link.link_url.substring(0, 40) + '...' : link.link_url;
+                return `
+                    <tr>
+                        <td>${escapeHtml(yearLabel)}</td>
+                        <td><a href="${escapeAttr(link.link_url)}" target="_blank" rel="noopener" title="${escapeAttr(link.link_url)}">${escapeHtml(linkPreview)}</a></td>
+                        <td>${escapeHtml(link.description || '-')}</td>
+                        <td>
+                            <button class="btn small" onclick="editPyqLink(${link.id}, ${link.year_id || 'null'}, '${escapeAttr(link.link_url)}', '${escapeAttr(link.description || '')}')">Edit</button>
+                            <button class="btn small danger" onclick="deletePyqLink(${link.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No PYQ links configured yet</td></tr>';
+        }
+    } catch (err) {
+        console.error('Error loading PYQ links:', err);
+        const tbody = document.querySelector('#pyqLinksTable tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center">Failed to load PYQ links</td></tr>';
+    }
+}
+
+function editPyqLink(id, yearId, linkUrl, description) {
+    const form = document.getElementById('pyqLinkForm');
+    if (!form) return;
+    
+    // Store the ID for update
+    form.dataset.editId = id;
+    
+    // Populate form fields
+    document.getElementById('pyqYear').value = yearId === null ? '' : yearId;
+    document.getElementById('pyqLink').value = linkUrl;
+    document.getElementById('pyqDesc').value = description;
+    
+    // Scroll to form
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function deletePyqLink(id) {
+    if (!confirm('Are you sure you want to delete this PYQ link?')) return;
+    
+    try {
+        const result = await api('delete_pyq_link', { id: id }, 'POST');
+        if (result.success) {
+            alert('PYQ link deleted successfully!');
+            loadPyqLinks();
+        } else {
+            alert('Error: ' + (result.error || 'Failed to delete PYQ link'));
+        }
+    } catch (error) {
+        console.error('Error deleting PYQ link:', error);
+        alert('Failed to delete PYQ link. Please try again.');
+    }
+}
+
+// Initialize PYQ Links form handler
+function initializePyqLinksForm() {
+    const form = document.getElementById('pyqLinkForm');
+    const cancelBtn = document.getElementById('pyqCancelBtn');
+    
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const yearValue = document.getElementById('pyqYear').value;
+            const yearId = yearValue === '' ? null : parseInt(yearValue);
+            const linkUrl = document.getElementById('pyqLink').value.trim();
+            const description = document.getElementById('pyqDesc').value.trim();
+            
+            if (!linkUrl) {
+                alert('Please enter a link URL');
+                return;
+            }
+            
+            try {
+                const result = await api('upsert_pyq_link', {
+                    year_id: yearId,
+                    link_url: linkUrl,
+                    description: description
+                }, 'POST');
+                
+                if (result.success) {
+                    alert('PYQ link saved successfully!');
+                    form.reset();
+                    delete form.dataset.editId;
+                    loadPyqLinks();
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to save PYQ link'));
+                }
+            } catch (error) {
+                console.error('Error saving PYQ link:', error);
+                alert('Failed to save PYQ link. Please try again.');
+            }
+        });
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            form.reset();
+            delete form.dataset.editId;
+        });
+    }
+}
+
+// Featured Students Management
+async function loadFeaturedStudents() {
+    try {
+        const students = await api('admin_list_featured_students');
+        const tbody = document.querySelector('#featuredStudentsTable tbody');
+        if (!tbody) return;
+        
+        // Also populate student selector if needed
+        await populateStudentSelector();
+        
+        if (students && students.length > 0) {
+            tbody.innerHTML = students.map(student => {
+                const course = student.course || 'N/A';
+                const year = student.batch_year || 'N/A';
+                const socialIcons = [];
+                if (student.linkedin_url) socialIcons.push('📎 LinkedIn');
+                if (student.instagram_url) socialIcons.push('📷 Instagram');
+                if (student.email) socialIcons.push('✉️ Email');
+                const socialText = socialIcons.length > 0 ? socialIcons.join(', ') : 'None';
+                
+                return `
+                    <tr>
+                        <td>${escapeHtml(student.display_name || student.username || 'Unknown')}</td>
+                        <td>${escapeHtml(course)} - ${escapeHtml(year)}</td>
+                        <td>${student.display_order || 0}</td>
+                        <td>
+                            <button class="btn small" onclick="editFeaturedStudent(${student.id}, ${student.user_id}, '${escapeAttr(student.profile_photo || '')}', '${escapeAttr(student.linkedin_url || '')}', '${escapeAttr(student.instagram_url || '')}', '${escapeAttr(student.email || '')}', '${escapeAttr(student.bio || '')}', ${student.display_order || 0})">Edit</button>
+                            <button class="btn small danger" onclick="deleteFeaturedStudent(${student.id})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="4" class="text-center">No featured students yet</td></tr>';
+        }
+    } catch (err) {
+        console.error('Error loading featured students:', err);
+        const tbody = document.querySelector('#featuredStudentsTable tbody');
+        if (tbody) tbody.innerHTML = '<tr><td colspan="4" class="text-center">Failed to load featured students</td></tr>';
+    }
+}
+
+async function populateStudentSelector() {
+    const select = document.getElementById('featStudentSelect');
+    if (!select) return;
+    
+    try {
+        const students = await api('admin_list_students');
+        if (students && students.length > 0) {
+            select.innerHTML = '<option value="">Select Student</option>' + students
+                .filter(s => s.is_approved) // Only show approved students
+                .map(student => {
+                    const label = `${student.display_name || student.username} - ${student.email}`;
+                    return `<option value="${student.id}">${escapeHtml(label)}</option>`;
+                }).join('');
+        } else {
+            select.innerHTML = '<option value="">No students available</option>';
+        }
+    } catch (err) {
+        console.error('Error loading students for selector:', err);
+        select.innerHTML = '<option value="">Error loading students</option>';
+    }
+}
+
+function editFeaturedStudent(id, userId, profilePhoto, linkedin, instagram, email, bio, displayOrder) {
+    const form = document.getElementById('featuredStudentForm');
+    if (!form) return;
+    
+    // Store the ID for update
+    form.dataset.editId = id;
+    
+    // Populate form fields
+    document.getElementById('featStudentSelect').value = userId;
+    document.getElementById('featProfilePhoto').value = profilePhoto;
+    document.getElementById('featLinkedin').value = linkedin;
+    document.getElementById('featInstagram').value = instagram;
+    document.getElementById('featEmail').value = email;
+    document.getElementById('featBio').value = bio;
+    document.getElementById('featDisplayOrder').value = displayOrder;
+    
+    // Scroll to form
+    form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+async function deleteFeaturedStudent(id) {
+    if (!confirm('Are you sure you want to remove this featured student?')) return;
+    
+    try {
+        const result = await api('admin_delete_featured_student', { id: id }, 'POST');
+        if (result.success) {
+            alert('Featured student removed successfully!');
+            loadFeaturedStudents();
+        } else {
+            alert('Error: ' + (result.error || 'Failed to remove featured student'));
+        }
+    } catch (error) {
+        console.error('Error deleting featured student:', error);
+        alert('Failed to remove featured student. Please try again.');
+    }
+}
+
+// Initialize Featured Students form handler
+function initializeFeaturedStudentsForm() {
+    const form = document.getElementById('featuredStudentForm');
+    const cancelBtn = document.getElementById('featCancelBtn');
+    
+    if (form) {
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('featStudentSelect').value;
+            const profilePhoto = document.getElementById('featProfilePhoto').value.trim();
+            const linkedin = document.getElementById('featLinkedin').value.trim();
+            const instagram = document.getElementById('featInstagram').value.trim();
+            const email = document.getElementById('featEmail').value.trim();
+            const bio = document.getElementById('featBio').value.trim();
+            const displayOrder = parseInt(document.getElementById('featDisplayOrder').value) || 0;
+            
+            if (!userId) {
+                alert('Please select a student');
+                return;
+            }
+            
+            const editId = form.dataset.editId;
+            
+            try {
+                let result;
+                if (editId) {
+                    // Update existing featured student
+                    result = await api('admin_update_featured_student', {
+                        id: parseInt(editId),
+                        profile_photo: profilePhoto || null,
+                        linkedin_url: linkedin || null,
+                        instagram_url: instagram || null,
+                        email: email || null,
+                        bio: bio || null,
+                        display_order: displayOrder
+                    }, 'POST');
+                } else {
+                    // Add new featured student
+                    result = await api('admin_add_featured_student', {
+                        user_id: parseInt(userId),
+                        profile_photo: profilePhoto || null,
+                        linkedin_url: linkedin || null,
+                        instagram_url: instagram || null,
+                        email: email || null,
+                        bio: bio || null,
+                        display_order: displayOrder
+                    }, 'POST');
+                }
+                
+                if (result.success) {
+                    alert(editId ? 'Featured student updated successfully!' : 'Featured student added successfully!');
+                    form.reset();
+                    delete form.dataset.editId;
+                    loadFeaturedStudents();
+                } else {
+                    alert('Error: ' + (result.error || 'Failed to save featured student'));
+                }
+            } catch (error) {
+                console.error('Error saving featured student:', error);
+                alert('Failed to save featured student. Please try again.');
+            }
+        });
+    }
+    
+    if (cancelBtn) {
+        cancelBtn.addEventListener('click', function() {
+            form.reset();
+            delete form.dataset.editId;
+        });
+    }
+}
+
 // Logout functionality - integrated into main initialization
+
+// ==================== News Management ====================
+async function loadNewsAdmin() {
+    const tbody = document.querySelector('#newsTable tbody');
+    if (!tbody) return;
+    try {
+        const items = await api('admin_list_news');
+        if (items && items.length) {
+            tbody.innerHTML = items.map(n => `
+                <tr>
+                    <td>${escapeHtml(n.title)}</td>
+                    <td>${n.is_published ? '<span class="badge success">Yes</span>' : '<span class="badge">No</span>'}</td>
+                    <td>${n.created_at || '-'}</td>
+                    <td>${n.updated_at || '-'}</td>
+                    <td>
+                        <button class="btn small" onclick="editNews(${n.id}, '${escapeAttr(n.title)}', ${n.is_published ? 1 : 0}, '${escapeAttr((n.body||'').replace(/\n/g,'\r'))}')">Edit</button>
+                        <button class="btn danger small" onclick="deleteNews(${n.id})">Delete</button>
+                    </td>
+                </tr>`).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" class="text-center">No news items yet</td></tr>';
+        }
+    } catch (err) {
+        console.error('Error loading news:', err);
+        tbody.innerHTML = '<tr><td colspan="5" class="text-center">Failed to load</td></tr>';
+    }
+}
+
+function editNews(id, title, published, body) {
+    const form = document.getElementById('newsForm');
+    if (!form) return;
+    form.dataset.editId = id;
+    document.getElementById('newsTitle').value = title;
+    document.getElementById('newsPublished').checked = published === 1;
+    document.getElementById('newsBody').value = body.replace(/\r/g,'\n');
+    document.getElementById('newsModalTitle').textContent = 'Edit News Item';
+    openModal('newsModal');
+}
+
+async function deleteNews(id) {
+    if (!confirm('Delete this news item?')) return;
+    try {
+        const res = await api('admin_delete_news', { id }, 'POST');
+        if (res?.success) {
+            loadNewsAdmin();
+        } else {
+            alert(res?.error || 'Failed to delete');
+        }
+    } catch (err) { alert('Failed to delete news item'); }
+}
+
+// News form handler
+document.addEventListener('DOMContentLoaded', () => {
+    const newsForm = document.getElementById('newsForm');
+    if (newsForm) {
+        newsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const editId = newsForm.dataset.editId;
+            const payload = {
+                title: document.getElementById('newsTitle').value.trim(),
+                body: document.getElementById('newsBody').value.trim(),
+                is_published: document.getElementById('newsPublished').checked ? 1 : 0
+            };
+            try {
+                let res;
+                if (editId) {
+                    payload.id = parseInt(editId,10);
+                    res = await api('admin_update_news', payload, 'POST');
+                } else {
+                    res = await api('admin_create_news', payload, 'POST');
+                }
+                if (res?.success) {
+                    closeModal('newsModal');
+                    newsForm.reset();
+                    delete newsForm.dataset.editId;
+                    loadNewsAdmin();
+                } else {
+                    alert(res?.error || 'Failed to save news');
+                }
+            } catch (err) { alert('Failed to save news'); }
+        });
+    }
+});
+
+// ==================== Contact Messages ====================
+async function loadContactMessagesAdmin() {
+    const tbody = document.querySelector('#contactMessagesTable tbody');
+    if (!tbody) return;
+    try {
+        const items = await api('admin_list_contacts');
+        if (items && items.length) {
+            tbody.innerHTML = items.map(m => `
+                <tr>
+                    <td>${escapeHtml(m.name)}</td>
+                    <td>${escapeHtml(m.email || '-')}</td>
+                    <td>${escapeHtml(m.subject || '-')}</td>
+                    <td>${escapeHtml(m.message).substring(0,120)}${m.message.length>120?'…':''}</td>
+                    <td>${m.created_at || '-'}</td>
+                    <td>${m.is_reviewed ? '<span class="badge success">Yes</span>' : '<span class="badge">No</span>'}</td>
+                    <td>
+                        <button class="btn small" onclick="toggleContactReviewed(${m.id}, ${m.is_reviewed?0:1})">${m.is_reviewed?'Unmark':'Mark Reviewed'}</button>
+                    </td>
+                </tr>`).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No messages</td></tr>';
+        }
+    } catch (err) {
+        console.error('Error loading messages:', err);
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Failed to load</td></tr>';
+    }
+}
+
+async function toggleContactReviewed(id, reviewed) {
+    try {
+        const res = await api('admin_mark_contact_reviewed', { id, is_reviewed: reviewed }, 'POST');
+        if (res?.success) loadContactMessagesAdmin(); else alert(res?.error || 'Failed');
+    } catch (err) { alert('Failed to update message'); }
+}
+
+// ==================== Courses Management ====================
+async function loadCoursesAdmin() {
+    const tbody = document.querySelector('#coursesTable tbody');
+    if (!tbody) return;
+    try {
+        const items = await api('admin_list_courses');
+        if (items && items.length) {
+            tbody.innerHTML = items.map(c => `
+                <tr>
+                    <td>${escapeHtml(c.title)}</td>
+                    <td>${escapeHtml(c.category || '-')}</td>
+                    <td>${escapeHtml(c.level || '-')}</td>
+                    <td>${escapeHtml(c.duration || '-')}</td>
+                    <td>${c.is_active ? '<span class="badge success">Yes</span>' : '<span class="badge">No</span>'}</td>
+                    <td>${c.created_at || '-'}</td>
+                    <td>
+                        <button class="btn small" onclick="editCourse(${c.id}, '${escapeAttr(c.title)}', '${escapeAttr(c.category||'')}', '${escapeAttr(c.level||'')}', '${escapeAttr(c.duration||'')}', '${escapeAttr(c.apply_link||'')}', '${escapeAttr((c.summary||'').replace(/\n/g,'\r'))}', ${c.is_active?1:0})">Edit</button>
+                        <button class="btn danger small" onclick="deleteCourse(${c.id})">Delete</button>
+                    </td>
+                </tr>`).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center">No courses yet</td></tr>';
+        }
+    } catch (err) {
+        console.error('Error loading courses:', err);
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center">Failed to load</td></tr>';
+    }
+}
+
+function editCourse(id, title, category, level, duration, apply_link, summary, active) {
+    const form = document.getElementById('courseForm');
+    if (!form) return;
+    form.dataset.editId = id;
+    document.getElementById('courseTitle').value = title;
+    document.getElementById('courseCategory').value = category;
+    document.getElementById('courseLevel').value = level;
+    document.getElementById('courseDuration').value = duration;
+    document.getElementById('courseApplyLink').value = apply_link;
+    document.getElementById('courseSummary').value = summary.replace(/\r/g,'\n');
+    document.getElementById('courseActive').checked = active === 1;
+    document.getElementById('courseModalTitle').textContent = 'Edit Course';
+    openModal('courseModal');
+}
+
+async function deleteCourse(id) {
+    if (!confirm('Delete this course?')) return;
+    try {
+        const res = await api('admin_delete_course', { id }, 'POST');
+        if (res?.success) {
+            loadCoursesAdmin();
+        } else { alert(res?.error || 'Failed to delete'); }
+    } catch (err) { alert('Failed to delete course'); }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const courseForm = document.getElementById('courseForm');
+    if (courseForm) {
+        courseForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const editId = courseForm.dataset.editId;
+            const payload = {
+                title: document.getElementById('courseTitle').value.trim(),
+                category: document.getElementById('courseCategory').value.trim(),
+                level: document.getElementById('courseLevel').value.trim(),
+                duration: document.getElementById('courseDuration').value.trim(),
+                apply_link: document.getElementById('courseApplyLink').value.trim(),
+                summary: document.getElementById('courseSummary').value.trim(),
+                is_active: document.getElementById('courseActive').checked ? 1 : 0
+            };
+            if (!payload.title) { alert('Title required'); return; }
+            try {
+                let res;
+                if (editId) {
+                    payload.id = parseInt(editId,10);
+                    res = await api('admin_update_course', payload, 'POST');
+                } else {
+                    res = await api('admin_create_course', payload, 'POST');
+                }
+                if (res?.success) {
+                    closeModal('courseModal');
+                    courseForm.reset();
+                    delete courseForm.dataset.editId;
+                    loadCoursesAdmin();
+                } else {
+                    alert(res?.error || 'Failed to save course');
+                }
+            } catch (err) { alert('Failed to save course'); }
+        });
+    }
+});

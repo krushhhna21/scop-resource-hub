@@ -45,4 +45,23 @@ class DirectoryController {
       return ['ok' => true];
     } catch (Throwable $e) { $this->pdo->rollBack(); throw new Exception('failed to upsert: '.$e->getMessage()); }
   }
+
+  // List featured students for public directory showcase
+  public function listFeaturedStudents() : array {
+    try {
+      $sql = "SELECT fs.id, fs.user_id, fs.profile_photo, fs.linkedin_url, fs.instagram_url, fs.email, fs.bio, fs.display_order,
+                     u.display_name, sp.batch_year, sp.course
+              FROM featured_students fs
+              JOIN users u ON fs.user_id = u.id
+              LEFT JOIN student_profiles sp ON sp.user_id = fs.user_id
+              WHERE fs.is_active = 1
+              ORDER BY fs.display_order ASC, fs.id ASC";
+      $stmt = $this->pdo->query($sql);
+      return $stmt->fetchAll(PDO::FETCH_ASSOC) ?: [];
+    } catch (Throwable $e) {
+      // If table doesn't exist yet, return empty array
+      return [];
+    }
+  }
 }
+
